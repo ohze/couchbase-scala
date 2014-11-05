@@ -4,7 +4,7 @@ import rx.lang.scala.Observable
 import scala.concurrent.Future
 import rx.lang.scala.JavaConversions._
 
-object Scala {
+object Implicits {
   implicit class RichJObs[T](val underlying: rx.Observable[T]) extends AnyVal {
     def asScala = toScalaObservable(underlying)
   }

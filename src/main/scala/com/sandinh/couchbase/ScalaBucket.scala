@@ -6,7 +6,7 @@ import com.couchbase.client.java.query.{AsyncQueryResult, Query}
 import com.couchbase.client.java.view.{AsyncViewResult, ViewQuery}
 import com.couchbase.client.java.{AsyncBucket, PersistTo, ReplicaMode, ReplicateTo}
 import com.sandinh.couchbase.document.JsDocument
-import com.sandinh.rx.Scala._
+import com.sandinh.rx.Implicits._
 import play.api.libs.json.Reads
 import rx.lang.scala.Observable
 import scala.reflect.ClassTag

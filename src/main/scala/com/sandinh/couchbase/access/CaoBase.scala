@@ -6,7 +6,8 @@ import rx.lang.scala.Observable
 
 import scala.reflect.ClassTag
 
-abstract class DocBase[T, U, D <: Document[U]](implicit tag: ClassTag[D]) {
+/** Base class for Couchbase Access Object */
+abstract class CaoBase[T, U, D <: Document[U]](implicit tag: ClassTag[D]) {
   protected def bucket: ScalaBucket
   protected def expiry(): Int = 0
 

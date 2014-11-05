@@ -11,6 +11,7 @@ import com.couchbase.client.java.transcoder.TranscoderUtils.JSON_COMPAT_FLAGS
 import com.couchbase.client.deps.io.netty.util.CharsetUtil.UTF_8
 import com.couchbase.client.java.transcoder.TranscoderUtils.hasJsonFlags
 
+/** play-json transcoder */
 class JsTranscoder private extends AbstractTranscoder[JsDocument, JsValue] {
   def documentType() = classOf[JsDocument]
 

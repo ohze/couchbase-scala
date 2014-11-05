@@ -3,7 +3,8 @@ package com.sandinh.couchbase.access
 import com.couchbase.client.java.document.Document
 import rx.lang.scala.Observable
 
-trait Key1[T, A, U, D <: Document[U]] { self: DocBase[T, U, D] =>
+/** internal */
+trait WithCaoKey1[T, A, U, D <: Document[U]] { self: CaoBase[T, U, D] =>
   protected def key(a: A): String
 
   final def get(a: A): Observable[T] = self.get(key(a))

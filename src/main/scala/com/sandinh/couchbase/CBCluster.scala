@@ -7,14 +7,14 @@ import com.couchbase.client.java.document.Document
 import com.couchbase.client.java.transcoder.Transcoder
 import com.typesafe.config.Config
 import scala.collection.JavaConverters._
+import scala.concurrent.duration.FiniteDuration
 import scala.util.Try
 import com.sandinh.couchbase.JavaConverters._
 
-/** @note ensure call cluster.disconnect() at the end of application life */
+/** @note ensure call #disconnect() at the end of application life */
 @Singleton
 class CBCluster @Inject() (config: Config) {
-  //lazy?
-  val cluster: CouchbaseCluster = {
+  private[this] val cluster: CouchbaseCluster = {
     CBCluster.config2SystemEnv(config, "com.couchbase")
     CouchbaseCluster.fromConnectionString(config.getString("com.sandinh.couchbase.connectionString"))
   }
@@ -25,6 +25,10 @@ class CBCluster @Inject() (config: Config) {
     val pass = cfg.getString("password")
     cluster.openBucket(name, pass, transcoder.asJava).async().asScala
   }
+
+  def disconnect() = cluster.disconnect()
+
+  def disconnect(timeout: FiniteDuration) = cluster.disconnect(timeout.length, timeout.unit)
 }
 
 object CBCluster {

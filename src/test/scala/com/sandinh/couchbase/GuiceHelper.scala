@@ -2,20 +2,27 @@ package com.sandinh.couchbase
 
 import javax.inject.Inject
 import com.google.inject.{Guice, AbstractModule}
-import com.sandinh.couchbase.transcoder.JsTranscoder
+import scala.concurrent.duration._
 import com.typesafe.config.{ConfigFactory, Config}
+import org.specs2.matcher.Matcher
 import org.specs2.mutable.Specification
 import org.specs2.specification.{Step, Fragments}
+import org.specs2.time.NoTimeConversions
+import scala.concurrent.Future
 
-trait GuiceSpecBase extends Specification {
-  //  private lazy val cbCluster = Guice.createInjector(new CBModule).getInstance(classOf[CBCluster])
-  @Inject private[this] var cbCluster: CBCluster = null
+trait GuiceSpecBase extends Specification with NoTimeConversions {
+  sequential
 
-  lazy val cb = cbCluster.openBucket("bk1", JsTranscoder)
-  def setup = Guice.createInjector(new CBModule).injectMembers(this)
-  def teardown = cbCluster.cluster.disconnect()
+  implicit class CustomFutureMatchable[T](m: Matcher[T]) {
+    def await: Matcher[Future[T]] = new FutureMatchable(m).await(0, 5.seconds)
+  }
+  @Inject private[this] var _cb: CB = null
+  protected def cb = _cb
 
-  override def map(fs: => Fragments) = Step(setup) ^ fs ^ Step(teardown)
+  def setup() = Guice.createInjector(new CBModule).injectMembers(this)
+  def teardown() = cb.cluster.disconnect()
+
+  override def map(fs: => Fragments) = Step(setup()) ^ fs ^ Step(teardown())
 }
 
 class CBModule extends AbstractModule {

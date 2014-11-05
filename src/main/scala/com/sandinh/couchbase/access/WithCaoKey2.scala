@@ -3,7 +3,8 @@ package com.sandinh.couchbase.access
 import com.couchbase.client.java.document.Document
 import rx.lang.scala.Observable
 
-trait Key2[T, A, B, U, D <: Document[U]] { self: DocBase[T, U, D] =>
+/** internal */
+trait WithCaoKey2[T, A, B, U, D <: Document[U]] { self: CaoBase[T, U, D] =>
   /** Map 2 param of type A, B to a CB key
     * @return CB key */
   protected def key(a: A, b: B): String
