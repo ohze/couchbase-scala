@@ -15,6 +15,8 @@ scalacOptions ++= Seq(
   "-Ywarn-dead-code", "-Ydead-code"
 )
 
+testOptions in Test += Tests.Argument("junitxml", "console")
+
 resolvers ++= Seq(
   "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases/",
   "Scalaz Bintray Repo" at "http://dl.bintray.com/scalaz/releases"
