@@ -15,7 +15,10 @@ scalacOptions ++= Seq(
   "-Ywarn-dead-code", "-Ydead-code"
 )
 
-testOptions in Test += Tests.Argument("junitxml", "console")
+//@see https://github.com/etorreborre/specs2/issues/283
+lazy val root = (project in file(".")) disablePlugins plugins.JUnitXmlReportPlugin
+
+testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "junitxml", "console")
 
 resolvers ++= Seq(
   "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases/",
