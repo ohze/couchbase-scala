@@ -13,7 +13,7 @@ trait WithCaoKey2[T, A, B, U, D <: Document[U]] { self: CaoBase[T, U, D] =>
   final def getBulk(aa: Iterable[A], b: B): Observable[Option[T]] = Observable.from(aa).concatMap(get(_, b).singleOption)
 
   final def set(a: A, b: B, t: T): Observable[T] = self.set(key(a, b), t)
-  final def setBulk(aa: Iterable[A], b: B, tt: Iterable[T]): Observable[T] = Observable.from(aa zip tt).flatMap {
+  final def setBulk(aa: Iterable[A], b: B, tt: Iterable[T]): Observable[T] = Observable.from(aa zip tt).concatMap {
     case (a, t) => set(a, b, t)
   }
 

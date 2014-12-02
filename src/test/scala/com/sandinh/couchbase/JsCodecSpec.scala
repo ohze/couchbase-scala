@@ -12,9 +12,9 @@ import com.sandinh.rx.Implicits._
 class JsCodecSpec extends GuiceSpecBase {
   val key = "test_key"
 
-  def jsGet = cb.bk1.get[JsDocument](key).map(_.content.as[Trophy]).toFuture must beEqualTo(Trophy.t1).await
-  def jsonGet = cb.bk1.get[JsonDocument](key).toFuture.map(doc => Json.parse(doc.content.toString).as[Trophy]) must beEqualTo(Trophy.t1).await
-  def jsSet = cb.bk1.upsert(JsDocument(key, Trophy.t1)).toFuture.map(_.id) must beEqualTo(key).await
+  def jsGet = cb.bk1.flatMap(_.get[JsDocument](key)).map(_.content.as[Trophy]).toFuture must beEqualTo(Trophy.t1).await
+  def jsonGet = cb.bk1.flatMap(_.get[JsonDocument](key)).toFuture.map(doc => Json.parse(doc.content.toString).as[Trophy]) must beEqualTo(Trophy.t1).await
+  def jsSet = cb.bk1.flatMap(_.upsert(JsDocument(key, Trophy.t1))).toFuture.map(_.id) must beEqualTo(key).await
   def jsonSet = {
     import Trophy.t1
     val arr = JsonArray.empty()
@@ -26,7 +26,7 @@ class JsCodecSpec extends GuiceSpecBase {
     val js = JsonObject.empty()
       .put("n", t1.n)
       .put("d", arr)
-    cb.bk1.upsert(JsonDocument.create(key, js)).toFuture.map(_.id) must beEqualTo(key).await
+    cb.bk1.flatMap(_.upsert(JsonDocument.create(key, js))).toFuture.map(_.id) must beEqualTo(key).await
   }
 
   "JsCodec" should {

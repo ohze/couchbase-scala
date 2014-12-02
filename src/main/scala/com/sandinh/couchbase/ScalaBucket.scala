@@ -1,7 +1,7 @@
 package com.sandinh.couchbase
 
 import com.couchbase.client.java.bucket.AsyncBucketManager
-import com.couchbase.client.java.document.{Document, JsonLongDocument}
+import com.couchbase.client.java.document.Document
 import com.couchbase.client.java.query.{AsyncQueryResult, Query}
 import com.couchbase.client.java.view.{AsyncViewResult, ViewQuery}
 import com.couchbase.client.java.{AsyncBucket, PersistTo, ReplicaMode, ReplicateTo}
@@ -11,7 +11,7 @@ import play.api.libs.json.Reads
 import rx.lang.scala.Observable
 import scala.reflect.ClassTag
 
-final class ScalaBucket(val asJava: AsyncBucket) {
+final class ScalaBucket(val asJava: AsyncBucket) /*extends AnyVal*/ {
   @inline def name = asJava.name()
 
   //  def get(id: String): Observable[JsDocument] = asJava.get(id, classOf[JsDocument]).asScala

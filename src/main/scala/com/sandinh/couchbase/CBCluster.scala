@@ -2,33 +2,32 @@ package com.sandinh.couchbase
 
 import javax.inject._
 import com.couchbase.client.core.logging.CouchbaseLoggerFactory
-import com.couchbase.client.java.CouchbaseCluster
+import com.couchbase.client.java.CouchbaseAsyncCluster
 import com.couchbase.client.java.document.Document
 import com.couchbase.client.java.transcoder.Transcoder
 import com.typesafe.config.Config
+import rx.lang.scala.Observable
 import scala.collection.JavaConverters._
-import scala.concurrent.duration.FiniteDuration
 import scala.util.Try
 import com.sandinh.couchbase.JavaConverters._
+import com.sandinh.rx.Implicits._
 
 /** @note ensure call #disconnect() at the end of application life */
 @Singleton
 class CBCluster @Inject() (config: Config) {
-  private[this] val cluster: CouchbaseCluster = {
+  private[this] val cluster: CouchbaseAsyncCluster = {
     CBCluster.config2SystemEnv(config, "com.couchbase")
-    CouchbaseCluster.fromConnectionString(config.getString("com.sandinh.couchbase.connectionString"))
+    CouchbaseAsyncCluster.fromConnectionString(config.getString("com.sandinh.couchbase.connectionString"))
   }
 
-  def openBucket(bucket: String, transcoder: Transcoder[_ <: Document[_], _]*): ScalaBucket = {
+  def openBucket(bucket: String, transcoder: Transcoder[_ <: Document[_], _]*): Observable[ScalaBucket] = {
     val cfg = config.getConfig(s"com.sandinh.couchbase.buckets.$bucket")
     val name = Try { cfg.getString("name") } getOrElse bucket
     val pass = cfg.getString("password")
-    cluster.openBucket(name, pass, transcoder.asJava).async().asScala
+    cluster.openBucket(name, pass, transcoder.asJava).asScala.map(_.asScala)
   }
 
-  def disconnect() = cluster.disconnect()
-
-  def disconnect(timeout: FiniteDuration) = cluster.disconnect(timeout.length, timeout.unit)
+  def disconnect(): Observable[Boolean] = cluster.disconnect().asScala.map(_.booleanValue)
 }
 
 object CBCluster {

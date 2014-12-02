@@ -11,7 +11,7 @@ trait WithCaoKey1[T, A, U, D <: Document[U]] { self: CaoBase[T, U, D] =>
   final def getBulk(aa: Iterable[A]): Observable[Option[T]] = Observable.from(aa).concatMap(get(_).singleOption)
 
   final def set(a: A, t: T): Observable[T] = self.set(key(a), t)
-  final def setBulk(aa: Iterable[A], tt: Iterable[T]): Observable[T] = Observable.from(aa zip tt).flatMap {
+  final def setBulk(aa: Iterable[A], tt: Iterable[T]): Observable[T] = Observable.from(aa zip tt).concatMap {
     case (a, t) => set(a, t)
   }
 
