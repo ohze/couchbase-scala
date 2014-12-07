@@ -7,6 +7,15 @@ couchbase-scala is [published to maven center](http://search.maven.org/#search%7
 ## Changelogs
 we use [Semantic Versioning](http://semver.org/)
 
+##### v3.0.1
+only update libs:
+```
+  "com.couchbase.client"  %  "java-client" % "2.0.2",
+  "io.reactivex"          %% "rxscala"     % "0.23.0",
+  "io.reactivex"          % "rxjava"       % "1.0.2",
+  "com.typesafe.play"     %% "play-json"   % "2.3.7"
+```
+
 ##### v3.0.0
 + update rxjava 1.0.1
 + typeof CBCluster.openBucket & CaoBase.bucket is changed from ScalaBucket to Observable[ScalaBucket]
