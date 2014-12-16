@@ -7,6 +7,10 @@ couchbase-scala is [published to maven center](http://search.maven.org/#search%7
 ## Changelogs
 we use [Semantic Versioning](http://semver.org/)
 
+##### v3.0.2
++ update rxjava 1.0.3
++ add com.sandinh.rx.Implicits.RichObs.subscribeError
+
 ##### v3.0.1
 only update libs:
 ```
