@@ -2,11 +2,9 @@ organization := "com.sandinh"
 
 name := "couchbase-scala"
 
-version := "4.0.0"
+version := "4.0.1"
 
 scalaVersion := "2.11.4"
-
-crossScalaVersions := Seq("2.11.4", "2.10.4")
 
 scalacOptions ++= Seq(
   "-encoding", "UTF-8", "-deprecation", "-unchecked", "-feature", //"-optimise",

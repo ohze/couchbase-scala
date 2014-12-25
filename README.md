@@ -7,6 +7,10 @@ couchbase-scala is [published to maven center](http://search.maven.org/#search%7
 ## Changelogs
 we use [Semantic Versioning](http://semver.org/)
 
+##### v4.0.1
++ some minor change (no bug fix, no new feature)
++ remove crossScalaVersions 2.10
+
 ##### v4.0.0
 WARNING: when implement a real project at http://sandinh.com, we found that RxScala (& RxJava) is VERY VERY complex
 (compare to scala Future).

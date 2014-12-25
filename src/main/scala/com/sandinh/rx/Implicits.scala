@@ -4,7 +4,7 @@ import com.couchbase.client.java.document.Document
 import com.couchbase.client.java.view.{AsyncViewRow, AsyncViewResult}
 import play.api.libs.json.{JsArray, JsValue}
 import rx.functions.{Func2, Func1}
-import rx.{Subscriber, Observable}
+import rx.{Observer, Observable}
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.{Future, Promise}
 import scala.language.implicitConversions
@@ -17,10 +17,10 @@ object Implicits {
       * + emit more than one values then `toFuture` will fail with IllegalArgumentException("Sequence contains too many elements") */
     def toFuture: Future[T] = {
       val p = Promise[T]()
-      underlying.single.subscribe(new Subscriber[T] {
-        def onCompleted() = {}
-        def onNext(t: T) = p success t
-        def onError(e: Throwable) = p failure e
+      underlying.single.subscribe(new Observer[T] {
+        def onCompleted(): Unit = {}
+        def onNext(t: T): Unit = p success t
+        def onError(e: Throwable): Unit = p failure e
       })
       p.future
     }
@@ -38,12 +38,12 @@ object Implicits {
   }
 
   implicit class RichFunction1[T1, R](val f: T1 => R) extends AnyVal {
-    def toRx = new Func1[T1, R] { def call(t1: T1) = f(t1) }
+    def toRx = new Func1[T1, R] { def call(t1: T1): R = f(t1) }
   }
 
   implicit class RichFunction2[T1, T2, R](val f: (T1, T2) => R) extends AnyVal {
     def toRx = new Func2[T1, T2, R] {
-      def call(t1: T1, t2: T2) = f(t1, t2)
+      def call(t1: T1, t2: T2): R = f(t1, t2)
     }
   }
 

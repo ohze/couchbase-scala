@@ -8,7 +8,7 @@ import com.couchbase.client.java.view.{AsyncViewResult, ViewQuery}
 import com.couchbase.client.java.{AsyncBucket, PersistTo, ReplicaMode, ReplicateTo}
 import com.sandinh.couchbase.document.JsDocument
 import com.sandinh.rx.Implicits._
-import rx.{Subscriber, Observable}
+import rx.{Observer, Observable}
 import scala.concurrent.{Promise, Future}
 import scala.reflect.ClassTag
 import scala.util.Try
@@ -22,10 +22,10 @@ object ScalaBucket {
       * @see com.sandinh.rx.Implicits.RichJObs#toFuture() */
     def toCbGetFuture: Future[T] = {
       val p = Promise[T]()
-      underlying.single.subscribe(new Subscriber[T] {
-        def onCompleted() = {}
-        def onNext(t: T) = p success t
-        def onError(e: Throwable) = e match {
+      underlying.single.subscribe(new Observer[T] {
+        def onCompleted(): Unit = {}
+        def onNext(t: T): Unit = p success t
+        def onError(e: Throwable): Unit = e match {
           //NoSuchElementException is thrown in underlying.single
           case _: NoSuchElementException => p failure new DocumentDoesNotExistException
           case _                         => p failure e
@@ -38,10 +38,10 @@ object ScalaBucket {
       * but do not require an ExecutionContext */
     def toFutureMap[U](f: T => U): Future[U] = {
       val p = Promise[U]()
-      underlying.single.subscribe(new Subscriber[T] {
-        def onCompleted() = {}
-        def onNext(t: T) = p tryComplete Try(f(t))
-        def onError(e: Throwable) = p failure e
+      underlying.single.subscribe(new Observer[T] {
+        def onCompleted(): Unit = {}
+        def onNext(t: T): Unit = p tryComplete Try(f(t))
+        def onError(e: Throwable): Unit = p failure e
       })
       p.future
     }
