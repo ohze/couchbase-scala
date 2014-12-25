@@ -7,6 +7,13 @@ couchbase-scala is [published to maven center](http://search.maven.org/#search%7
 ## Changelogs
 we use [Semantic Versioning](http://semver.org/)
 
+##### v4.0.0
+WARNING: when implement a real project at http://sandinh.com, we found that RxScala (& RxJava) is VERY VERY complex
+(compare to scala Future).
+At first, we have created https://github.com/giabao/scala-future-vs-rxscala to share knowledge to our team.
+But after several weeks, we have decided to use Future only! (many dangerousness of Rx have not been mentioned in scala-future-vs-rxscala).
+So, we change couchbase-scala to just expose Future as the API.
+
 ##### v3.0.2
 + update rxjava 1.0.3
 + add com.sandinh.rx.Implicits.RichObs.subscribeError

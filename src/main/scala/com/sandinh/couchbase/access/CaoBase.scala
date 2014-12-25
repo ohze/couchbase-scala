@@ -1,13 +1,15 @@
 package com.sandinh.couchbase.access
 
 import com.couchbase.client.java.document.Document
+import com.couchbase.client.java.error.DocumentDoesNotExistException
 import com.sandinh.couchbase.ScalaBucket
-import rx.lang.scala.Observable
+import scala.concurrent.Future
 import scala.reflect.ClassTag
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /** Base class for Couchbase Access Object */
 abstract class CaoBase[T, U, D <: Document[U]](implicit tag: ClassTag[D]) {
-  protected def bucket: Observable[ScalaBucket]
+  protected def bucket: ScalaBucket
   protected def expiry(): Int = 0
 
   protected def reads(u: U): T
@@ -15,9 +17,15 @@ abstract class CaoBase[T, U, D <: Document[U]](implicit tag: ClassTag[D]) {
 
   protected def createDoc(id: String, expiry: Int, content: U): D
 
-  final def get(id: String): Observable[T] = bucket.flatMap(_.get[D](id)).map(d => reads(d.content))
+  @inline final def get(id: String): Future[T] = bucket.get[D](id).map(d => reads(d.content))
+  def getOrElse(id: String)(default: => T): Future[T] = get(id).recover {
+    case _: DocumentDoesNotExistException => default
+  }
 
-  final def set(id: String, t: T): Observable[T] = bucket.flatMap(_.upsert(createDoc(id, expiry(), writes(t)))).map(_ => t)
+  @inline final def set(id: String, t: T): Future[D] = bucket.upsert(createDoc(id, expiry(), writes(t)))
 
-  final def remove(id: String): Observable[D] = bucket.flatMap(_.remove[D](id))
+  /** convenient method. = set(..).map(_ => t) */
+  @inline final def setT(id: String, t: T): Future[T] = set(id, t).map(_ => t)
+
+  @inline final def remove(id: String): Future[D] = bucket.remove[D](id)
 }

@@ -1,7 +1,9 @@
 package com.sandinh.couchbase.access
 
 import com.couchbase.client.java.document.Document
-import rx.lang.scala.Observable
+import com.couchbase.client.java.error.DocumentDoesNotExistException
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /** internal */
 trait WithCaoKey2[T, A, B, U, D <: Document[U]] { self: CaoBase[T, U, D] =>
@@ -9,23 +11,30 @@ trait WithCaoKey2[T, A, B, U, D <: Document[U]] { self: CaoBase[T, U, D] =>
     * @return CB key */
   protected def key(a: A, b: B): String
 
-  final def get(a: A, b: B): Observable[T] = self.get(key(a, b))
-  final def getBulk(aa: Iterable[A], b: B): Observable[Option[T]] = Observable.from(aa).concatMap(get(_, b).singleOption)
+  final def get(a: A, b: B): Future[T] = self.get(key(a, b))
+  final def getOrElse(a: A, b: B)(default: => T): Future[T] = self.getOrElse(key(a, b))(default)
+  final def getBulk(aa: Seq[A], b: B): Future[Seq[T]] = Future.traverse(aa)(get(_, b))
 
-  final def set(a: A, b: B, t: T): Observable[T] = self.set(key(a, b), t)
-  final def setBulk(aa: Iterable[A], b: B, tt: Iterable[T]): Observable[T] = Observable.from(aa zip tt).concatMap {
+  final def set(a: A, b: B, t: T): Future[D] = self.set(key(a, b), t)
+  /** convenient method. = set(..).map(_ => t) */
+  final def setT(a: A, b: B, t: T): Future[T] = self.set(key(a, b), t).map(_ => t)
+  final def setBulk(aa: Seq[A], b: B, tt: Seq[T]): Future[Seq[D]] = Future.traverse(aa zip tt) {
     case (a, t) => set(a, b, t)
   }
 
-  final def change(a: A, b: B)(f: Option[T] => T): Observable[T] = get(a, b).singleOption.map(f).flatMap(set(a, b, _))
-  final def flatChange(a: A, b: B)(f: Option[T] => Observable[T]): Observable[T] = get(a, b).singleOption.flatMap(f).flatMap(set(a, b, _))
+  final def change(a: A, b: B)(f: Option[T] => T): Future[D] = get(a, b)
+    .map(Option(_))
+    .recover { case _: DocumentDoesNotExistException => None }
+    .flatMap { o => set(a, b, f(o)) }
 
-  final def changeBulk(aa: Iterable[A], b: B)(f: Option[T] => T): Observable[T] = Observable.from(aa).concatMap { a =>
-    get(a, b).singleOption.map(f).flatMap(set(a, b, _))
-  }
-  final def flatChangeBulk(aa: Iterable[A], b: B)(f: Option[T] => Observable[T]): Observable[T] = Observable.from(aa).concatMap { a =>
-    get(a, b).singleOption.flatMap(f).flatMap(set(a, b, _))
-  }
+  final def flatChange(a: A, b: B)(f: Option[T] => Future[T]): Future[D] = get(a, b)
+    .map(Option(_))
+    .recover { case _: DocumentDoesNotExistException => None }
+    .flatMap(f).flatMap(set(a, b, _))
 
-  final def remove(a: A, b: B): Observable[D] = self.remove(key(a, b))
+  final def changeBulk(aa: Seq[A], b: B)(f: Option[T] => T): Future[Seq[D]] = Future.traverse(aa)(change(_, b)(f))
+
+  final def flatChangeBulk(aa: Seq[A], b: B)(f: Option[T] => Future[T]): Future[Seq[D]] = Future.traverse(aa)(flatChange(_, b)(f))
+
+  final def remove(a: A, b: B): Future[D] = self.remove(key(a, b))
 }
