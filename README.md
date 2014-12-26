@@ -7,6 +7,13 @@ couchbase-scala is [published to maven center](http://search.maven.org/#search%7
 ## Changelogs
 we use [Semantic Versioning](http://semver.org/)
 
+##### v4.1.0
+This version contain some incompatible change:
++ getOrElse method in CaoBase, WithCaoKey1, WithCaoKey2: do not use a separate param list for `default` param
+(fix usage problem when getOrElse(x)(null): type mismatch found Null(null) required XX)
++ rename RichAsyncViewRow.{document => doc}.
+ We can't name `document` because scala compiler will not implicitly pick that method.
+
 ##### v4.0.1
 + some minor change (no bug fix, no new feature)
 + remove crossScalaVersions 2.10
