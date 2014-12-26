@@ -10,7 +10,7 @@ trait WithCaoKey1[T, A, U, D <: Document[U]] { self: CaoBase[T, U, D] =>
   protected def key(a: A): String
 
   final def get(a: A): Future[T] = self.get(key(a))
-  final def getOrElse(a: A, default: => T): Future[T] = self.getOrElse(key(a), default)
+  final def getOrElse(a: A)(default: => T): Future[T] = self.getOrElse(key(a))(default)
   final def getBulk(aa: Seq[A]): Future[Seq[T]] = Future.traverse(aa)(get)
 
   final def set(a: A, t: T): Future[D] = self.set(key(a), t)

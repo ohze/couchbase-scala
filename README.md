@@ -7,7 +7,13 @@ couchbase-scala is [published to maven center](http://search.maven.org/#search%7
 ## Changelogs
 we use [Semantic Versioning](http://semver.org/)
 
+##### v4.2.0
+reverse `getOrElse` changes in v4.1.0:
+`getOrElse(x)(null): type mismatch found Null(null) required XX`
+is because x is an instance of class X(..) extend AnyVal
+
 ##### v4.1.0
+note: Do not use this version. see v4.2.0
 This version contain some incompatible change:
 + getOrElse method in CaoBase, WithCaoKey1, WithCaoKey2: do not use a separate param list for `default` param
 (fix usage problem when getOrElse(x)(null): type mismatch found Null(null) required XX)
