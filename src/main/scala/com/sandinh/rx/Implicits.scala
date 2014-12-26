@@ -68,7 +68,7 @@ object Implicits {
   }
 
   implicit class RichAsyncViewRow(val underlying: AsyncViewRow) extends AnyVal {
-    def document[D <: Document[_]](implicit tag: ClassTag[D]): Observable[D] =
+    def doc[D <: Document[_]](implicit tag: ClassTag[D]): Observable[D] =
       underlying.document(tag.runtimeClass.asInstanceOf[Class[D]])
   }
 }

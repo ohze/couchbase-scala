@@ -18,7 +18,7 @@ abstract class CaoBase[T, U, D <: Document[U]](implicit tag: ClassTag[D]) {
   protected def createDoc(id: String, expiry: Int, content: U): D
 
   @inline final def get(id: String): Future[T] = bucket.get[D](id).map(d => reads(d.content))
-  def getOrElse(id: String)(default: => T): Future[T] = get(id).recover {
+  def getOrElse(id: String, default: => T): Future[T] = get(id).recover {
     case _: DocumentDoesNotExistException => default
   }
 
