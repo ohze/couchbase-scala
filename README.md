@@ -7,6 +7,9 @@ couchbase-scala is [published to maven center](http://search.maven.org/#search%7
 ## Changelogs
 we use [Semantic Versioning](http://semver.org/)
 
+##### v5.1.0
+only use CompatStringDocument instead of StringDocument for StrCao, StrCao1, StrCao2
+
 ##### v5.0.0
 + move `def bucket: ScalaBucket` to constructor's param in CaoBase, JsCao, JsCao1, JsCao2, StrCao, StrCao1, StrCao2
 + use `com.couchbase.timeout._` keys to config timeout in [duration format](https://github.com/typesafehub/config/blob/master/HOCON.md#duration-format).
