@@ -8,8 +8,7 @@ import scala.reflect.ClassTag
 import scala.concurrent.ExecutionContext.Implicits.global
 
 /** Base class for Couchbase Access Object */
-abstract class CaoBase[T, U, D <: Document[U]](implicit tag: ClassTag[D]) {
-  protected def bucket: ScalaBucket
+abstract class CaoBase[T, U, D <: Document[U]: ClassTag](bucket: ScalaBucket) {
   protected def expiry(): Int = 0
 
   protected def reads(u: U): T

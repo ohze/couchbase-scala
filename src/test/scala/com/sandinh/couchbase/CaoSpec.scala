@@ -18,7 +18,6 @@ class CaoSpec extends GuiceSpecBase {
 import javax.inject._
 
 @Singleton
-class TrophyCao @Inject() (cb: CB) extends JsCao1[Trophy, String] {
+class TrophyCao @Inject() (cb: CB) extends JsCao1[Trophy, String](cb.bk1) {
   protected def key(username: String) = "test_cao_" + username
-  protected def bucket = cb.bk1
 }
