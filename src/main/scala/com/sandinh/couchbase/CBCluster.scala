@@ -1,45 +1,61 @@
 package com.sandinh.couchbase
 
 import javax.inject._
-import com.couchbase.client.core.logging.CouchbaseLoggerFactory
-import com.couchbase.client.java.CouchbaseCluster
+import com.couchbase.client.java.CouchbaseAsyncCluster
 import com.couchbase.client.java.document.Document
 import com.couchbase.client.java.transcoder.Transcoder
+import com.sandinh.couchbase.transcoder._
 import com.typesafe.config.Config
 import scala.collection.JavaConverters._
+import scala.concurrent.Await
 import scala.util.Try
 import com.sandinh.couchbase.JavaConverters._
+import com.sandinh.rx.Implicits._
+import scala.concurrent.duration._
 
 /** @note ensure call #disconnect() at the end of application life */
 @Singleton
 class CBCluster @Inject() (config: Config) {
-  private[this] val cluster: CouchbaseCluster = {
-    CBCluster.config2SystemEnv(config, "com.couchbase")
-    CouchbaseCluster.fromConnectionString(config.getString("com.sandinh.couchbase.connectionString"))
-  }
+  private val env = CbEnv(config)
 
-  def openBucket(bucket: String, transcoder: Transcoder[_ <: Document[_], _]*): ScalaBucket = {
+  private val cluster: CouchbaseAsyncCluster =
+    CouchbaseAsyncCluster.fromConnectionString(env, config.getString("com.sandinh.couchbase.connectionString"))
+
+  def openBucket(bucket: String, transcoders: Transcoder[_ <: Document[_], _]*): ScalaBucket = {
     val cfg = config.getConfig(s"com.sandinh.couchbase.buckets.$bucket")
     val name = Try { cfg.getString("name") } getOrElse bucket
     val pass = cfg.getString("password")
-    cluster.openBucket(name, pass, transcoder.asJava).async().asScala
+    val trans = transcoders :+ JsTranscoder :+ CompatStringTranscoder
+    Await.result(
+      cluster.openBucket(name, pass, trans.asJava).toFuture,
+      env.connectTimeout.millis
+    ).asScala
   }
 
-  def disconnect(): Boolean = cluster.disconnect().booleanValue
+  def disconnect(): Boolean = Await.result(
+    cluster.disconnect().toFuture,
+    env.disconnectTimeout.millis
+  ).booleanValue
 }
 
-object CBCluster {
-  private lazy val logger = CouchbaseLoggerFactory.getInstance(classOf[CBCluster])
+private object CbEnv {
+  import java.util.concurrent.TimeUnit.MILLISECONDS
+  import com.couchbase.client.java.env.{CouchbaseEnvironment, DefaultCouchbaseEnvironment}
+  import DefaultCouchbaseEnvironment.Builder
 
-  private def config2SystemEnv(config: Config, path: String): Unit = {
-    import com.typesafe.config.ConfigValueType._
+  def apply(config: Config): CouchbaseEnvironment = {
+    val b = DefaultCouchbaseEnvironment.builder()
+    val c = config.getConfig("com.couchbase.timeout")
 
-    for (entry <- config.getConfig(path).entrySet().asScala) {
-      val key = path + "." + entry.getKey
-      entry.getValue.valueType match {
-        case NUMBER | BOOLEAN | STRING => System.setProperty(key, entry.getValue.unwrapped.toString)
-        case _                         => logger.warn("unsupported config {}", key)
-      }
-    }
+    def set(k: String, f: Long => Builder): Builder =
+      if (c.hasPath(k)) f(c.getDuration(k, MILLISECONDS)) else b
+
+    set("management", b.managementTimeout)
+    set("query", b.queryTimeout)
+    set("view", b.viewTimeout)
+    set("kv", b.kvTimeout)
+    set("connect", b.connectTimeout)
+    set("disconnect", b.disconnectTimeout)
+    b.build()
   }
 }

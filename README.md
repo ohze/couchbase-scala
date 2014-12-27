@@ -7,6 +7,15 @@ couchbase-scala is [published to maven center](http://search.maven.org/#search%7
 ## Changelogs
 we use [Semantic Versioning](http://semver.org/)
 
+##### v5.0.0-SNAPSHOT
++ use `com.couchbase.timeout._` keys to config timeout in [duration format](https://github.com/typesafehub/config/blob/master/HOCON.md#duration-format).
+see src/main/resource/reference.conf for legend
++ note: from this version, config values `com.couchbase._` will not be set to java system properties
+(see class `DefaultCouchbaseEnvironment`)
++ add some convenient methods to ScalaBucket: getT, getOrElseT, getJsT
++ CBCluster now auto add `com.sandinh.couchbase.transcoder._` transcoders when openBucket
++ add CompatStringDocument which works exactly like JsonStringDocument permit decoding a stored StringDocument
+
 ##### v4.2.0
 reverse `getOrElse` changes in v4.1.0:
 `getOrElse(x)(null): type mismatch found Null(null) required XX`

@@ -11,8 +11,10 @@ import play.api.libs.json.Json
 class JsCodecSpec extends GuiceSpecBase {
   val key = "test_key"
 
-  def jsGet = cb.bk1.getJs(key).map(_.content.as[Trophy]) must beEqualTo(Trophy.t1).await
-  def jsonGet = cb.bk1.get[JsonDocument](key).map(doc => Json.parse(doc.content.toString).as[Trophy]) must beEqualTo(Trophy.t1).await
+  def jsGet = cb.bk1.getJsT[Trophy](key) must beEqualTo(Trophy.t1).await
+  implicit val JsonDoc = classOf[JsonDocument]
+  def jsonGet = cb.bk1.getT[JsonObject](key).map(json => Json.parse(json.toString).as[Trophy]) must beEqualTo(Trophy.t1).await
+
   def jsSet = cb.bk1.upsert(JsDocument(key, Trophy.t1)).map(_.id) must beEqualTo(key).await
   def jsonSet = {
     import Trophy.t1

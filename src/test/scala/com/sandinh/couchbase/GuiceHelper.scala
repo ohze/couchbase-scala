@@ -11,8 +11,6 @@ import org.specs2.time.NoTimeConversions
 import scala.concurrent.Future
 
 trait GuiceSpecBase extends Specification with NoTimeConversions {
-  sequential
-
   implicit class CustomFutureMatchable[T](m: Matcher[T]) {
     def await: Matcher[Future[T]] = new FutureMatchable(m).await(0, 5.seconds)
   }

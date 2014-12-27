@@ -2,7 +2,7 @@ organization := "com.sandinh"
 
 name := "couchbase-scala"
 
-version := "4.2.0"
+version := "5.0.0-SNAPSHOT"
 
 scalaVersion := "2.11.4"
 
@@ -17,6 +17,8 @@ scalacOptions ++= Seq(
 lazy val root = (project in file(".")) disablePlugins plugins.JUnitXmlReportPlugin
 
 testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "junitxml", "console")
+
+fork in Test := true
 
 resolvers ++= Seq(
   "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases/",
