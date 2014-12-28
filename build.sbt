@@ -18,8 +18,6 @@ lazy val root = (project in file(".")) disablePlugins plugins.JUnitXmlReportPlug
 
 testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "junitxml", "console")
 
-fork in Test := true
-
 resolvers ++= Seq(
   "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases/",
   "Scalaz Bintray Repo" at "http://dl.bintray.com/scalaz/releases"
