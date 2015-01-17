@@ -2,9 +2,9 @@ organization := "com.sandinh"
 
 name := "couchbase-scala"
 
-version := "5.1.0"
+version := "5.1.1"
 
-scalaVersion := "2.11.4"
+scalaVersion := "2.11.5"
 
 scalacOptions ++= Seq(
   "-encoding", "UTF-8", "-deprecation", "-unchecked", "-feature", //"-optimise",
@@ -14,7 +14,7 @@ scalacOptions ++= Seq(
 )
 
 //@see https://github.com/etorreborre/specs2/issues/283
-lazy val root = (project in file(".")) disablePlugins plugins.JUnitXmlReportPlugin
+disablePlugins(plugins.JUnitXmlReportPlugin)
 
 testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "junitxml", "console")
 
@@ -24,8 +24,7 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "com.couchbase.client"      %  "java-client"        % "2.0.2",
-  "io.reactivex"              % "rxjava"              % "1.0.3",
+  "com.couchbase.client"      %  "java-client"        % "2.0.3",
   "javax.inject"              % "javax.inject"        % "1",
   "com.typesafe.play"         %% "play-json"          % "2.3.7",
   "com.google.inject"         % "guice"               % "3.0"       % "test",

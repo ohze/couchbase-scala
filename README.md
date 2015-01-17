@@ -7,6 +7,9 @@ couchbase-scala is [published to maven center](http://search.maven.org/#search%7
 ## Changelogs
 we use [Semantic Versioning](http://semver.org/)
 
+##### v5.1.1
+only update scala 2.11.5, couchbase java-client 2.0.3
+
 ##### v5.1.0
 only use CompatStringDocument instead of StringDocument for StrCao, StrCao1, StrCao2
 
