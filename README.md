@@ -7,6 +7,19 @@ couchbase-scala is [published to maven center](http://search.maven.org/#search%7
 ## Changelogs
 we use [Semantic Versioning](http://semver.org/)
 
+##### v6.0.0
+1. add [CompatStringTranscoderLegacy](src/main/scala/com/sandinh/couchbase/transcoder/CompatStringTranscoder.scala#L51) which:
+ + decoding a stored document in format of StringDocument OR JsonStringDocument.
+ + encoding a String as StringDocument.
+
+  (same as in previous version, [CompatStringTranscoder](src/main/scala/com/sandinh/couchbase/transcoder/CompatStringTranscoder.scala#L39):
+ + decoding a stored document in format of StringDocument OR JsonStringDocument.
+ + encoding a String as StringDocument.)
+
+  see [CompatStringSpec](src/test/scala/com/sandinh/couchbase/CompatStringSpec.scala)
+
+2. [CBCluster.openBucket](src/main/scala/com/sandinh/couchbase/CBCluster.scala#L24) now has `legacyEncodeString: Boolean` param, default = true. In previous version, CBCluster.openBucket("some_bucket") return a bucket which encode String as JsonString (using CompatStringTranscoder). For better compatibility, from v6.0.0 the return bucket will encode String using CompatStringTranscoderLegacy. (This is in-compatible with v5.x, so we bump to v6.0.0).
+
 ##### v5.1.1
 only update scala 2.11.5, couchbase java-client 2.0.3
 
@@ -16,7 +29,7 @@ only use CompatStringDocument instead of StringDocument for StrCao, StrCao1, Str
 ##### v5.0.0
 + move `def bucket: ScalaBucket` to constructor's param in CaoBase, JsCao, JsCao1, JsCao2, StrCao, StrCao1, StrCao2
 + use `com.couchbase.timeout._` keys to config timeout in [duration format](https://github.com/typesafehub/config/blob/master/HOCON.md#duration-format).
-see src/main/resource/reference.conf for legend
+see [reference.conf](src/main/resources/reference.conf) for legend
 + note: from this version, config values `com.couchbase._` will not be set to java system properties
 (see class `DefaultCouchbaseEnvironment`)
 + add some convenient methods to ScalaBucket: getT, getOrElseT, getJsT

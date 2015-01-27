@@ -38,9 +38,28 @@ class CompatStringSpec extends GuiceSpecBase {
       compatStringGet(4) must beEqualTo(s).await
     }
 
-    "5. set CompatString get JsonString success" in {
-      compatStringSet(5) must beEqualTo(s).await
-      jsonStringGet(5) must beEqualTo(s).await
+    "5. set CompatString get JsonString success if use CompatStringTranscoder" in {
+      val bk1Compat = cb.cluster.openBucket("bk1", legacyEncodeString = false)
+
+      bk1Compat.upsert(new CompatStringDocument(id + 5, s)).map(_.content) must beEqualTo(s).await
+      bk1Compat.get[JsonStringDocument](id + 5).map(_.content) must beEqualTo(s).await
+    }
+
+    "6. set CompatString get String success if use LegacyStringTranscoder (default)" in {
+      compatStringSet(6) must beEqualTo(s).await
+      stringGet(6) must beEqualTo(s).await
+    }
+
+    "7. set CompatString get String fail if use CompatStringTranscoder" in {
+      val bk1Compat = cb.cluster.openBucket("bk1", legacyEncodeString = false)
+
+      bk1Compat.upsert(new CompatStringDocument(id + 7, s)).map(_.content) must beEqualTo(s).await
+      bk1Compat.get[StringDocument](id + 7).map(_.content) must throwA[TranscodingException].await
+    }
+
+    "8. set CompatString get JsonString fail if use LegacyStringTranscoder (default)" in {
+      compatStringSet(8) must beEqualTo(s).await
+      jsonStringGet(8) must throwA[TranscodingException].await
     }
   }
 }

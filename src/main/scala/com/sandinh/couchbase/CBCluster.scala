@@ -21,16 +21,26 @@ class CBCluster @Inject() (config: Config) {
   private val cluster: CouchbaseAsyncCluster =
     CouchbaseAsyncCluster.fromConnectionString(env, config.getString("com.sandinh.couchbase.connectionString"))
 
-  def openBucket(bucket: String, transcoders: Transcoder[_ <: Document[_], _]*): ScalaBucket = {
+  /** Open bucket with typesafe config load from key com.sandinh.couchbase.buckets.`bucket`
+    * @param bucket use as a subkey of typesafe config for open bucket.
+    * @param legacyEncodeString set = true to choose CompatStringTranscoderLegacy, false to choose CompatStringTranscoder
+    * @param transcoders extra customize transcoders.
+    * Note JsTranscoder & CompatStringTranscoderLegacy | CompatStringTranscoder is auto passed to underlying `CouchbaseAsyncCluster.openBucket`,
+    * so don't need to include into `transcoders` param */
+  def openBucket(bucket: String, legacyEncodeString: Boolean, transcoders: Transcoder[_ <: Document[_], _]*): ScalaBucket = {
     val cfg = config.getConfig(s"com.sandinh.couchbase.buckets.$bucket")
     val name = Try { cfg.getString("name") } getOrElse bucket
     val pass = cfg.getString("password")
-    val trans = transcoders :+ JsTranscoder :+ CompatStringTranscoder
+    val stringTranscoder = if (legacyEncodeString) CompatStringTranscoderLegacy else CompatStringTranscoder
+    val trans = transcoders :+ JsTranscoder :+ stringTranscoder
     Await.result(
       cluster.openBucket(name, pass, trans.asJava).toFuture,
       env.connectTimeout.millis
     ).asScala
   }
+
+  /** openBucket(bucket, legacyEncodeString = true) */
+  def openBucket(bucket: String): ScalaBucket = openBucket(bucket, legacyEncodeString = true)
 
   def disconnect(): Boolean = Await.result(
     cluster.disconnect().toFuture,

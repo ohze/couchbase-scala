@@ -2,7 +2,7 @@ organization := "com.sandinh"
 
 name := "couchbase-scala"
 
-version := "5.1.1"
+version := "6.0.0"
 
 scalaVersion := "2.11.5"
 

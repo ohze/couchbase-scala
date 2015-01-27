@@ -6,11 +6,12 @@ import com.couchbase.client.deps.io.netty.buffer.{Unpooled, ByteBuf}
 import com.couchbase.client.deps.io.netty.util.CharsetUtil.UTF_8
 import com.couchbase.client.java.error.TranscodingException
 import com.couchbase.client.java.transcoder.{TranscoderUtils, AbstractTranscoder}
-import TranscoderUtils.{JSON_COMPAT_FLAGS, JSON_COMMON_FLAGS, hasStringFlags}
+import TranscoderUtils.{STRING_COMMON_FLAGS, JSON_COMPAT_FLAGS, JSON_COMMON_FLAGS, hasStringFlags}
 import com.sandinh.couchbase.document.CompatStringDocument
 
-/** A transcoder to encode and decode CompatStringDocument */
-class CompatStringTranscoder extends AbstractTranscoder[CompatStringDocument, String] {
+/** A abstract transcoder to decode CompatStringDocument.
+  * This class permit decoding a stored document in format of StringDocument OR JsonStringDocument. */
+abstract class CompatStringTranscoderBase extends AbstractTranscoder[CompatStringDocument, String] {
   def doDecode(id: String, content: ByteBuf, cas: Long, expiry: Int, flags: Int, status: ResponseStatus): CompatStringDocument = {
     lazy val s = content.toString(UTF_8)
 
@@ -27,14 +28,31 @@ class CompatStringTranscoder extends AbstractTranscoder[CompatStringDocument, St
     newDocument(id, expiry, decoded, cas)
   }
 
-  /** encode same as JsonStringTranscoder
-    * @see com.couchbase.client.java.transcoder.JsonStringTranscoder#doEncode(com.couchbase.client.java.document.JsonStringDocument) */
-  def doEncode(document: CompatStringDocument): Tuple2[ByteBuf, Integer] =
-    Tuple.create(Unpooled.copiedBuffer("\"" + document.content + "\"", UTF_8), JSON_COMPAT_FLAGS)
-
   def newDocument(id: String, expiry: Int, content: String, cas: Long) = new CompatStringDocument(id, content, expiry, cas)
 
   def documentType() = classOf[CompatStringDocument]
 }
 
+/** A transcoder to encode and decode CompatStringDocument. This class permit:
+  * + decoding a stored document in format of StringDocument OR JsonStringDocument.
+  * + encoding a String as JsonStringDocument. */
+class CompatStringTranscoder extends CompatStringTranscoderBase {
+  /** encode same as JsonStringTranscoder
+    * @see com.couchbase.client.java.transcoder.JsonStringTranscoder#doEncode(com.couchbase.client.java.document.JsonStringDocument) */
+  def doEncode(document: CompatStringDocument): Tuple2[ByteBuf, Integer] =
+    Tuple.create(Unpooled.copiedBuffer("\"" + document.content + "\"", UTF_8), JSON_COMPAT_FLAGS)
+}
+
 object CompatStringTranscoder extends CompatStringTranscoder
+
+/** A transcoder to encode and decode CompatStringDocument. This class permit:
+  * + decoding a stored document in format of StringDocument OR JsonStringDocument.
+  * + encoding a String as StringDocument. */
+class CompatStringTranscoderLegacy extends CompatStringTranscoderBase {
+  /** encode same as StringTranscoder
+    * @see com.couchbase.client.java.transcoder.StringTranscoder#doEncode(com.couchbase.client.java.document.StringDocument) */
+  def doEncode(document: CompatStringDocument): Tuple2[ByteBuf, Integer] =
+    Tuple.create(Unpooled.copiedBuffer(document.content, UTF_8), STRING_COMMON_FLAGS)
+}
+
+object CompatStringTranscoderLegacy extends CompatStringTranscoderLegacy
