@@ -11,44 +11,40 @@ import scala.language.implicitConversions
 import scala.reflect.ClassTag
 
 object Implicits {
+  private final class FutureObserver[T](p: Promise[T]) extends Observer[T] {
+    def onCompleted(): Unit = {}
+    def onNext(t: T): Unit = p success t
+    def onError(e: Throwable): Unit = p failure e
+  }
+
+  private final class SFunc1[T1, R](f: T1 => R) extends Func1[T1, R] {
+    def call(t1: T1): R = f(t1)
+  }
+  private final class SFunc2[T1, T2, R](f: (T1, T2) => R) extends Func2[T1, T2, R] {
+    def call(t1: T1, t2: T2): R = f(t1, t2)
+  }
+
   implicit class ScalaObservable[T](val underlying: Observable[T]) extends AnyVal {
     /** @note if `underlying`:
       * + is empty then `toFuture` will fail with NoSuchElementException("Sequence contains no elements")
       * + emit more than one values then `toFuture` will fail with IllegalArgumentException("Sequence contains too many elements") */
     def toFuture: Future[T] = {
       val p = Promise[T]()
-      underlying.single.subscribe(new Observer[T] {
-        def onCompleted(): Unit = {}
-        def onNext(t: T): Unit = p success t
-        def onError(e: Throwable): Unit = p failure e
-      })
+      underlying.single.subscribe(new FutureObserver(p))
       p.future
     }
 
     /** scala map. We can't name `map` because scala compiler will not implicitly pick this method */
-    @inline def scMap[R](f: T => R): Observable[R] = underlying.map[R](f.toRx)
+    @inline def scMap[R](f: T => R): Observable[R] = underlying.map[R](new SFunc1(f))
 
     /** scala flatMap. We can't name `flatMap` because scala compiler will not implicitly pick this method */
-    @inline def scFlatMap[R](f: T => Observable[R]): Observable[R] = underlying.flatMap[R](f.toRx)
+    @inline def scFlatMap[R](f: T => Observable[R]): Observable[R] = underlying.flatMap[R](new SFunc1(f))
 
     /** we not named `foldLeft` to indicate that Observable may emit items "out of order" (not like Future)
       * Ex: Observable.from(2, 1).flatMap(Observable.timer(_ seconds)).fold("")(_ + _)
       * is Observable of "12" (not "21") */
-    @inline def fold[R](z: R)(op: (R, T) => R): Observable[R] = underlying.reduce(z, op.toRx)
+    @inline def fold[R](z: R)(op: (R, T) => R): Observable[R] = underlying.reduce(z, new SFunc2(op))
   }
-
-  implicit class RichFunction1[T1, R](val f: T1 => R) extends AnyVal {
-    def toRx = new Func1[T1, R] { def call(t1: T1): R = f(t1) }
-  }
-
-  implicit class RichFunction2[T1, T2, R](val f: (T1, T2) => R) extends AnyVal {
-    def toRx = new Func2[T1, T2, R] {
-      def call(t1: T1, t2: T2): R = f(t1, t2)
-    }
-  }
-
-  //  @inline implicit def function1ToFunc1[A, R](f: A => R): Func1[A, R] = new Func1[A, R] { def call(a: A): R = f(a) }
-  //  @inline implicit def function2ToFunc2[A, B, R](f: (A, B) => R): Func2[A, B, R] = new Func2[A, B, R] { def call(a: A, b: B): R = f(a, b) }
 
   implicit class RichAsyncViewResult(val underlying: AsyncViewResult) extends AnyVal {
     def foldRows(row2Js: AsyncViewRow => JsValue): Future[JsArray] =
