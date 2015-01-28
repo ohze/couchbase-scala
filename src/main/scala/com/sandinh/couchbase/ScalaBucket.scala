@@ -42,7 +42,7 @@ final class ScalaBucket(val asJava: AsyncBucket) /*extends AnyVal*/ {
 
   @inline def name = asJava.name
 
-  @inline def getJsT[T: Reads](id: String): Future[T] = get[JsDocument](id).map(_.content.as[T])
+  def getJsT[T: Reads](id: String): Future[T] = get[JsDocument](id).map(_.content.as[T])
 
   def get[D <: Document[_]](id: String)(implicit tag: ClassTag[D]): Future[D] =
     asJava.get(id, tag.runtimeClass.asInstanceOf[Class[D]]).toCbGetFuture
