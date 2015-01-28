@@ -7,6 +7,11 @@ couchbase-scala is [published to maven center](http://search.maven.org/#search%7
 ## Changelogs
 we use [Semantic Versioning](http://semver.org/)
 
+##### v6.1.0
++ fixes SI-9121 by removing com.sandinh.rx.Implicits.{RichFunction1, RichFunction2}
++ remove some `@inline` annotations
++ add scalacOptions: -optimise -Ybackend:GenBCode -Ydelambdafy:method ..
+
 ##### v6.0.0
 1. add [CompatStringTranscoderLegacy](src/main/scala/com/sandinh/couchbase/transcoder/CompatStringTranscoder.scala#L51) which:
  + decoding a stored document in format of StringDocument OR JsonStringDocument.
