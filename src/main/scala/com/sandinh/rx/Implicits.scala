@@ -1,14 +1,9 @@
 package com.sandinh.rx
 
-import com.couchbase.client.java.document.Document
-import com.couchbase.client.java.view.{AsyncViewRow, AsyncViewResult}
-import play.api.libs.json.{JsArray, JsValue}
 import rx.functions.{Func2, Func1}
 import rx.{Observer, Observable}
-import scala.collection.mutable.ListBuffer
 import scala.concurrent.{Future, Promise}
 import scala.language.implicitConversions
-import scala.reflect.ClassTag
 
 object Implicits {
   private final class FutureObserver[T](p: Promise[T]) extends Observer[T] {
@@ -50,27 +45,5 @@ object Implicits {
       * is Observable of "12" (not "21")
       * @note result may "out of order" */
     @inline def fold[R](z: R)(op: (R, T) => R): Observable[R] = underlying.reduce(z, new SFunc2(op))
-  }
-
-  implicit class RichAsyncViewResult(val underlying: AsyncViewResult) extends AnyVal {
-    def foldRows(row2Js: AsyncViewRow => JsValue): Future[JsArray] =
-      underlying.rows
-        .scMap(row2Js)
-        .fold(ListBuffer.empty[JsValue])(_ += _)
-        .scMap(JsArray(_))
-        .toFuture
-
-    def flatFoldRows(row2Obs: AsyncViewRow => Observable[JsValue]): Future[JsArray] = {
-      underlying.rows
-        .scConcatMap(row2Obs)
-        .fold(ListBuffer.empty[JsValue])(_ += _)
-        .scMap(JsArray(_))
-        .toFuture
-    }
-  }
-
-  implicit class RichAsyncViewRow(val underlying: AsyncViewRow) extends AnyVal {
-    def doc[D <: Document[_]](implicit tag: ClassTag[D]): Observable[D] =
-      underlying.document(tag.runtimeClass.asInstanceOf[Class[D]])
   }
 }
