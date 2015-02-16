@@ -37,12 +37,18 @@ object Implicits {
     /** scala map. We can't name `map` because scala compiler will not implicitly pick this method */
     @inline def scMap[R](f: T => R): Observable[R] = underlying.map[R](new SFunc1(f))
 
-    /** scala flatMap. We can't name `flatMap` because scala compiler will not implicitly pick this method */
+    /** scala flatMap. We can't name `flatMap` because scala compiler will not implicitly pick this method.
+      * @note result may "out of order". If need in-order then you should use scConcatMap */
     @inline def scFlatMap[R](f: T => Observable[R]): Observable[R] = underlying.flatMap[R](new SFunc1(f))
+
+    /** scala concatMap. We can't name `concatMap` because scala compiler will not implicitly pick this method.
+      * @note If don't need in-order then you should use scFlatMap */
+    @inline def scConcatMap[R](f: T => Observable[R]): Observable[R] = underlying.concatMap[R](new SFunc1(f))
 
     /** we not named `foldLeft` to indicate that Observable may emit items "out of order" (not like Future)
       * Ex: Observable.from(2, 1).flatMap(Observable.timer(_ seconds)).fold("")(_ + _)
-      * is Observable of "12" (not "21") */
+      * is Observable of "12" (not "21")
+      * @note result may "out of order" */
     @inline def fold[R](z: R)(op: (R, T) => R): Observable[R] = underlying.reduce(z, new SFunc2(op))
   }
 
@@ -54,9 +60,9 @@ object Implicits {
         .scMap(JsArray(_))
         .toFuture
 
-    def flatFoldRows(row2Js: AsyncViewRow => Observable[JsValue]): Future[JsArray] = {
+    def flatFoldRows(row2Obs: AsyncViewRow => Observable[JsValue]): Future[JsArray] = {
       underlying.rows
-        .scFlatMap(row2Js)
+        .scConcatMap(row2Obs)
         .fold(ListBuffer.empty[JsValue])(_ += _)
         .scMap(JsArray(_))
         .toFuture
