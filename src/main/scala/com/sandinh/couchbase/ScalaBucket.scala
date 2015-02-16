@@ -3,7 +3,7 @@ package com.sandinh.couchbase
 import com.couchbase.client.java.bucket.AsyncBucketManager
 import com.couchbase.client.java.document.Document
 import com.couchbase.client.java.error.DocumentDoesNotExistException
-import com.couchbase.client.java.query.{AsyncQueryResult, Query}
+import com.couchbase.client.java.query.{Statement, AsyncQueryResult, Query}
 import com.couchbase.client.java.view.{AsyncViewResult, ViewQuery}
 import com.couchbase.client.java.{AsyncBucket, PersistTo, ReplicaMode, ReplicateTo}
 import com.sandinh.couchbase.document.JsDocument
@@ -102,7 +102,7 @@ final class ScalaBucket(val asJava: AsyncBucket) /*extends AnyVal*/ {
 
   def query(query: ViewQuery): Future[AsyncViewResult] = asJava.query(query).toFuture
   def query(query: Query): Future[AsyncQueryResult] = asJava.query(query).toFuture
-  def query(query: String): Future[AsyncQueryResult] = asJava.query(query).toFuture
+  def query(query: Statement): Future[AsyncQueryResult] = asJava.query(query).toFuture
 
   def unlock(id: String, cas: Long): Future[Boolean] = asJava.unlock(id, cas).toFuture.map(_.booleanValue)
   def unlock[D <: Document[_]](document: D): Future[Boolean] = asJava.unlock(document).toFuture.map(_.booleanValue)

@@ -2,7 +2,7 @@ organization := "com.sandinh"
 
 name := "couchbase-scala"
 
-version := "6.1.0"
+version := "6.2.0-SNAPSHOT"
 
 scalaVersion := "2.11.5"
 
@@ -32,9 +32,9 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "com.couchbase.client"      %  "java-client"        % "2.0.3",
+  "com.couchbase.client"      %  "java-client"        % "2.1.0",
   "javax.inject"              % "javax.inject"        % "1",
-  "com.typesafe.play"         %% "play-json"          % "2.3.7",
+  "com.typesafe.play"         %% "play-json"          % "2.3.8",
   "com.google.inject"         % "guice"               % "3.0"       % "test",
-  "org.specs2"                %% "specs2"             % "2.4.15"    % "test"
+  "org.specs2"                %% "specs2"             % "2.4.16"    % "test"
 )
