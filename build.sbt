@@ -2,7 +2,7 @@ organization := "com.sandinh"
 
 name := "couchbase-scala"
 
-version := "6.2.0-SNAPSHOT"
+version := "7.0.0"
 
 scalaVersion := "2.11.5"
 
@@ -38,3 +38,6 @@ libraryDependencies ++= Seq(
   "com.google.inject"         % "guice"               % "3.0"       % "test",
   "org.specs2"                %% "specs2"             % "2.4.16"    % "test"
 )
+
+//update from rxjava 1.0.4 (transitive dep from couchbase java-client 2.1.0)
+libraryDependencies += "io.reactivex" % "rxjava" % "1.0.6"

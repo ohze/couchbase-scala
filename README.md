@@ -7,6 +7,15 @@ couchbase-scala is [published to maven center](http://search.maven.org/#search%7
 ## Changelogs
 we use [Semantic Versioning](http://semver.org/)
 
+##### v7.0.0
++ update play-json 2.3.8, rxjava 1.0.6 (transitive dep at v1.0.4 from couchbase java-client 2.1.0)
++ update couchbase java-client 2.1.0 with changes:
+    + default disconnect timeout is increased from 5s to 25s
+    + ScalaBucket.query(String) is replaced by query(Statement)
++ RichAsyncViewResult.flatFoldRows now use scConcatMap instead of scFlatMap to preserve order of underlying observable items.
+This fixes the bug in sandinh.com's bank-play project: log rows in bank is out-of-created-order
++ RichAsyncViewResult is moved from com.sandinh.rx.Implicits to com.sandinh.couchbase.Implicits
+
 ##### v6.1.0
 + fixes SI-9121 by removing com.sandinh.rx.Implicits.{RichFunction1, RichFunction2}
 + remove some `@inline` annotations
