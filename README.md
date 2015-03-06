@@ -7,6 +7,10 @@ couchbase-scala is [published to maven center](http://search.maven.org/#search%7
 ## Changelogs
 we use [Semantic Versioning](http://semver.org/)
 
+##### v7.0.1
++ update scala 2.11.6, com.couchbase.client:java-client:2.1.1, rxjava:1.0.7
++ use specs2-core:3.0 
+
 ##### v7.0.0
 + update play-json 2.3.8, rxjava 1.0.6 (transitive dep at v1.0.4 from couchbase java-client 2.1.0)
 + update couchbase java-client 2.1.0 with changes:

@@ -7,6 +7,7 @@ import com.couchbase.client.java.document.JsonDocument
 import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
 import com.sandinh.couchbase.document.JsDocument
 import play.api.libs.json.Json
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class JsCodecSpec extends GuiceSpecBase {
   val key = "test_key"

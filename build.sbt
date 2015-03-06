@@ -2,9 +2,9 @@ organization := "com.sandinh"
 
 name := "couchbase-scala"
 
-version := "7.0.0"
+version := "7.0.1"
 
-scalaVersion := "2.11.5"
+scalaVersion := "2.11.6"
 
 //see https://github.com/scala/scala/blob/2.11.x/src/compiler/scala/tools/nsc/settings/ScalaSettings.scala
 scalacOptions ++= Seq("-encoding", "UTF-8"
@@ -32,12 +32,12 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "com.couchbase.client"      %  "java-client"        % "2.1.0",
+  "com.couchbase.client"      %  "java-client"        % "2.1.1",
   "javax.inject"              % "javax.inject"        % "1",
   "com.typesafe.play"         %% "play-json"          % "2.3.8",
   "com.google.inject"         % "guice"               % "3.0"       % "test",
-  "org.specs2"                %% "specs2"             % "2.4.16"    % "test"
+  "org.specs2"                %% "specs2-core"        % "3.0"       % "test"
 )
 
-//update from rxjava 1.0.4 (transitive dep from couchbase java-client 2.1.0)
-libraryDependencies += "io.reactivex" % "rxjava" % "1.0.6"
+//update from rxjava 1.0.4 (transitive dep from com.couchbase.client:core-io:1.1.1)
+libraryDependencies += "io.reactivex" % "rxjava" % "1.0.7"

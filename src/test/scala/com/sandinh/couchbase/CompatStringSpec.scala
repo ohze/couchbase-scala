@@ -3,6 +3,7 @@ package com.sandinh.couchbase
 import com.couchbase.client.java.document.{JsonStringDocument, StringDocument}
 import com.couchbase.client.java.error.TranscodingException
 import com.sandinh.couchbase.document.CompatStringDocument
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class CompatStringSpec extends GuiceSpecBase {
   val id = "test_CompatStringSpec"
