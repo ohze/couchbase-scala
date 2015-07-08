@@ -2,9 +2,9 @@ organization := "com.sandinh"
 
 name := "couchbase-scala"
 
-version := "7.0.1"
+version := "7.1.0-SNAPSHOT"
 
-scalaVersion := "2.11.6"
+scalaVersion := "2.11.7"
 
 //see https://github.com/scala/scala/blob/2.11.x/src/compiler/scala/tools/nsc/settings/ScalaSettings.scala
 scalacOptions ++= Seq("-encoding", "UTF-8"
@@ -27,17 +27,17 @@ disablePlugins(plugins.JUnitXmlReportPlugin)
 testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "junitxml", "console")
 
 resolvers ++= Seq(
-  "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases/",
-  "Scalaz Bintray Repo" at "http://dl.bintray.com/scalaz/releases"
+  Resolver.typesafeRepo("releases"),
+  Resolver.bintrayRepo("scalaz", "releases")
 )
 
 libraryDependencies ++= Seq(
-  "com.couchbase.client"      %  "java-client"        % "2.1.1",
+  "com.couchbase.client"      %  "java-client"        % "2.1.3",
   "javax.inject"              % "javax.inject"        % "1",
-  "com.typesafe.play"         %% "play-json"          % "2.3.8",
-  "com.google.inject"         % "guice"               % "3.0"       % "test",
-  "org.specs2"                %% "specs2-core"        % "3.0"       % "test"
+  "com.typesafe.play"         %% "play-json"          % "2.4.2", //require java 8
+  "com.google.inject"         % "guice"               % "4.0"       % "test",
+  "org.specs2"                %% "specs2-core"        % "3.6.2"     % "test"
 )
 
 //update from rxjava 1.0.4 (transitive dep from com.couchbase.client:core-io:1.1.1)
-libraryDependencies += "io.reactivex" % "rxjava" % "1.0.7"
+libraryDependencies += "io.reactivex" % "rxjava" % "1.0.12"
