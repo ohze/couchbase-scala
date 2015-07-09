@@ -22,7 +22,8 @@ object Implicits {
   implicit class ScalaObservable[T](val underlying: Observable[T]) extends AnyVal {
     /** @note if `underlying`:
       * + is empty then `toFuture` will fail with NoSuchElementException("Sequence contains no elements")
-      * + emit more than one values then `toFuture` will fail with IllegalArgumentException("Sequence contains too many elements") */
+      * + emit more than one values then `toFuture` will fail with IllegalArgumentException("Sequence contains too many elements")
+      */
     def toFuture: Future[T] = {
       val p = Promise[T]()
       underlying.single.subscribe(new FutureObserver(p))
@@ -33,17 +34,20 @@ object Implicits {
     @inline def scMap[R](f: T => R): Observable[R] = underlying.map[R](new SFunc1(f))
 
     /** scala flatMap. We can't name `flatMap` because scala compiler will not implicitly pick this method.
-      * @note result may "out of order". If need in-order then you should use scConcatMap */
+      * @note result may "out of order". If need in-order then you should use scConcatMap
+      */
     @inline def scFlatMap[R](f: T => Observable[R]): Observable[R] = underlying.flatMap[R](new SFunc1(f))
 
     /** scala concatMap. We can't name `concatMap` because scala compiler will not implicitly pick this method.
-      * @note If don't need in-order then you should use scFlatMap */
+      * @note If don't need in-order then you should use scFlatMap
+      */
     @inline def scConcatMap[R](f: T => Observable[R]): Observable[R] = underlying.concatMap[R](new SFunc1(f))
 
     /** we not named `foldLeft` to indicate that Observable may emit items "out of order" (not like Future)
       * Ex: Observable.from(2, 1).flatMap(Observable.timer(_ seconds)).fold("")(_ + _)
       * is Observable of "12" (not "21")
-      * @note result may "out of order" */
+      * @note result may "out of order"
+      */
     @inline def fold[R](z: R)(op: (R, T) => R): Observable[R] = underlying.reduce(z, new SFunc2(op))
   }
 }

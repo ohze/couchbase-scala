@@ -38,9 +38,11 @@ abstract class JsCao[T: Format](bucket: ScalaBucket) extends CaoBase[T, JsValue,
 }
 
 /** Base class for Couchbase Access Object to access json documents that can be decode/encode to/from the `T` type - which is
-  * store in couchbase at key generated from the T.key(A) method */
+  * store in couchbase at key generated from the T.key(A) method
+  */
 abstract class JsCao1[T: Format, A](bucket: ScalaBucket) extends JsCao[T](bucket) with WithCaoKey1[T, A, JsValue, JsDocument]
 
 /** Base class for Couchbase Access Object to access json documents that can be decode/encode to/from the `T` type - which is
-  * store in couchbase at key generated from the T.key(A, B) method */
+  * store in couchbase at key generated from the T.key(A, B) method
+  */
 abstract class JsCao2[T: Format, A, B](bucket: ScalaBucket) extends JsCao[T](bucket) with WithCaoKey2[T, A, B, JsValue, JsDocument]

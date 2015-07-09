@@ -10,7 +10,8 @@ import TranscoderUtils.{STRING_COMMON_FLAGS, JSON_COMPAT_FLAGS, JSON_COMMON_FLAG
 import com.sandinh.couchbase.document.CompatStringDocument
 
 /** A abstract transcoder to decode CompatStringDocument.
-  * This class permit decoding a stored document in format of StringDocument OR JsonStringDocument. */
+  * This class permit decoding a stored document in format of StringDocument OR JsonStringDocument.
+  */
 abstract class CompatStringTranscoderBase extends AbstractTranscoder[CompatStringDocument, String] {
   def doDecode(id: String, content: ByteBuf, cas: Long, expiry: Int, flags: Int, status: ResponseStatus): CompatStringDocument = {
     lazy val s = content.toString(UTF_8)
@@ -35,10 +36,12 @@ abstract class CompatStringTranscoderBase extends AbstractTranscoder[CompatStrin
 
 /** A transcoder to encode and decode CompatStringDocument. This class permit:
   * + decoding a stored document in format of StringDocument OR JsonStringDocument.
-  * + encoding a String as JsonStringDocument. */
+  * + encoding a String as JsonStringDocument.
+  */
 class CompatStringTranscoder extends CompatStringTranscoderBase {
   /** encode same as JsonStringTranscoder
-    * @see com.couchbase.client.java.transcoder.JsonStringTranscoder#doEncode(com.couchbase.client.java.document.JsonStringDocument) */
+    * @see com.couchbase.client.java.transcoder.JsonStringTranscoder#doEncode(com.couchbase.client.java.document.JsonStringDocument)
+    */
   def doEncode(document: CompatStringDocument): Tuple2[ByteBuf, Integer] =
     Tuple.create(Unpooled.copiedBuffer("\"" + document.content + "\"", UTF_8), JSON_COMPAT_FLAGS)
 }
@@ -47,10 +50,12 @@ object CompatStringTranscoder extends CompatStringTranscoder
 
 /** A transcoder to encode and decode CompatStringDocument. This class permit:
   * + decoding a stored document in format of StringDocument OR JsonStringDocument.
-  * + encoding a String as StringDocument. */
+  * + encoding a String as StringDocument.
+  */
 class CompatStringTranscoderLegacy extends CompatStringTranscoderBase {
   /** encode same as StringTranscoder
-    * @see com.couchbase.client.java.transcoder.StringTranscoder#doEncode(com.couchbase.client.java.document.StringDocument) */
+    * @see com.couchbase.client.java.transcoder.StringTranscoder#doEncode(com.couchbase.client.java.document.StringDocument)
+    */
   def doEncode(document: CompatStringDocument): Tuple2[ByteBuf, Integer] =
     Tuple.create(Unpooled.copiedBuffer(document.content, UTF_8), STRING_COMMON_FLAGS)
 }

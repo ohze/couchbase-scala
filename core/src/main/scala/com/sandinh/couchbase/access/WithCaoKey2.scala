@@ -8,7 +8,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 /** internal */
 trait WithCaoKey2[T, A, B, U, D <: Document[U]] { self: CaoBase[T, U, D] =>
   /** Map 2 param of type A, B to a CB key
-    * @return CB key */
+    * @return CB key
+    */
   protected def key(a: A, b: B): String
 
   final def get(a: A, b: B): Future[T] = self.get(key(a, b))

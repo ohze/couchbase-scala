@@ -20,7 +20,8 @@ object ScalaBucket {
       * but return an `onError(DocumentDoesNotExistException)` Observable for unlock, replace, append, prepend operators.
       * When convert the getXX-return-Observable to Future (note that Future can not be empty),
       * for consistent, we also return a DocumentDoesNotExistException-failed Future.
-      * @see com.sandinh.rx.Implicits.RichJObs#toFuture() */
+      * @see com.sandinh.rx.Implicits.RichJObs#toFuture()
+      */
     def toCbGetFuture: Future[T] = {
       val p = Promise[T]()
       underlying.single.subscribe(new Observer[T] {
@@ -52,7 +53,8 @@ final class ScalaBucket(val asJava: AsyncBucket) /*extends AnyVal*/ {
     *
     * bucket.getT[String](id)
     * bucket.getT[JsValue](id)
-    * }}} */
+    * }}}
+    */
   def getT[T](id: String)(implicit c: Class[_ <: Document[T]]): Future[T] =
     asJava.get(id, c).toCbGetFuture.map(_.content)
 
@@ -116,10 +118,12 @@ final class ScalaBucket(val asJava: AsyncBucket) /*extends AnyVal*/ {
     asJava.counter(id, delta, initial, expiry).toFuture.map(_.content.longValue)
 
   /** @note the result document has expiry = 0 & content = null
-    * @see https://github.com/couchbase/couchbase-java-client/commit/6f0c7cf2247a3ef99a71ef2edd67f1077e4646e0 */
+    * @see https://github.com/couchbase/couchbase-java-client/commit/6f0c7cf2247a3ef99a71ef2edd67f1077e4646e0
+    */
   def append[D <: Document[_]](document: D): Future[D] = asJava.append(document).toFuture
   /** @note the result document has expiry = 0 & content = null
-    * @see https://github.com/couchbase/couchbase-java-client/commit/6f0c7cf2247a3ef99a71ef2edd67f1077e4646e0 */
+    * @see https://github.com/couchbase/couchbase-java-client/commit/6f0c7cf2247a3ef99a71ef2edd67f1077e4646e0
+    */
   def prepend[D <: Document[_]](document: D): Future[D] = asJava.prepend(document).toFuture
 
   def bucketManager: Future[AsyncBucketManager] = asJava.bucketManager().toFuture

@@ -1,6 +1,7 @@
 /** @author giabao
   * created: 2013-10-22 10:23
-  * (c) 2011-2013 sandinh.com */
+  * (c) 2011-2013 sandinh.com
+  */
 package com.sandinh.couchbase
 
 import com.couchbase.client.java.document.JsonDocument

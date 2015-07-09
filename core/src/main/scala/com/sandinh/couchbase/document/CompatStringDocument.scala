@@ -7,7 +7,8 @@ import com.couchbase.client.java.document.AbstractDocument
   * This document:
   * + works exactly like JsonDocument, but it accepts a different toplevel type.
   * + is interoperable with other SDKs.
-  * + not like JsonStringDocument: This document permit decoding a stored StringDocument */
+  * + not like JsonStringDocument: This document permit decoding a stored StringDocument
+  */
 class CompatStringDocument(
   id:      String = null,
   content: String = null,
