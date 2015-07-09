@@ -1,12 +1,4 @@
-xerial.sbt.Sonatype.sonatypeSettings
-
-publishMavenStyle := true
-
-publishArtifact in Test := false
-
-pomIncludeRepository := { _ => false }
-
-pomExtra := <url>https://github.com/giabao/couchbase-scala</url>
+pomExtra in Global := <url>https://github.com/giabao/couchbase-scala</url>
   <licenses>
     <license>
       <name>Apache 2</name>
