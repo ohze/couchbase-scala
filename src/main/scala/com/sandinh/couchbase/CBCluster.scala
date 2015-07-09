@@ -7,11 +7,12 @@ import com.couchbase.client.java.transcoder.Transcoder
 import com.sandinh.couchbase.transcoder._
 import com.typesafe.config.Config
 import scala.collection.JavaConverters._
-import scala.concurrent.Await
+import scala.concurrent.{Future, Await}
 import scala.util.Try
 import com.sandinh.couchbase.JavaConverters._
 import com.sandinh.rx.Implicits._
 import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /** @note ensure call #disconnect() at the end of application life */
 @Singleton
@@ -46,6 +47,13 @@ class CBCluster @Inject() (config: Config) {
     cluster.disconnect().toFuture,
     env.disconnectTimeout.millis
   ).booleanValue
+
+  /** convention val for using with play.api.inject.ApplicationLifecycle#addStopHook */
+  val disconnectFuture: () => Future[Unit] = () =>
+    cluster.disconnect()
+      .timeout(env.disconnectTimeout, MILLISECONDS)
+      .toFuture
+      .map(_ => ())
 }
 
 private object CbEnv {
@@ -66,6 +74,7 @@ private object CbEnv {
     set("kv", b.kvTimeout)
     set("connect", b.connectTimeout)
     set("disconnect", b.disconnectTimeout)
-    b.build()
+    b.queryEnabled(config.getBoolean("com.sandinh.couchbase.queryEnabled"))
+      .build()
   }
 }

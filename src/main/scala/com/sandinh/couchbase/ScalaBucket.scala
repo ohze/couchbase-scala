@@ -56,6 +56,7 @@ final class ScalaBucket(val asJava: AsyncBucket) /*extends AnyVal*/ {
   def getT[T](id: String)(implicit c: Class[_ <: Document[T]]): Future[T] =
     asJava.get(id, c).toCbGetFuture.map(_.content)
 
+  @deprecated("use com.sandinh.couchbase.Implicits.DocNotExistFuture", "7.1.0")
   def getOrElseT[T](id: String)(default: => T)(implicit c: Class[_ <: Document[T]]): Future[T] =
     getT[T](id).recover { case _: DocumentDoesNotExistException => default }
 
