@@ -4,6 +4,10 @@ we use [Semantic Versioning](http://semver.org/)
 ##### v7.1.0
 + update play-json 2.4.2 (require java 8), com.couchbase.client:java-client:2.1.3, rxjava:1.0.12
 + add `couchbase-play` module for using couchbase-scala in a play application
++ support n1ql querry
++ add convenience method `JsDocument.as[T: Reads]: T`
++ (minor break change) move the implicit Doc Classes: com.sandinh.couchbase.{Implicits => Implicit.DocCls}
++ add implicit value class DocNotExistFuture, RichJsonObject, RichJsonArray
 
 ##### v7.0.1
 + update scala 2.11.6, com.couchbase.client:java-client:2.1.1, rxjava:1.0.7
