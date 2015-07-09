@@ -65,4 +65,7 @@ lazy val play = (project in file("play"))
   )).dependsOn(core)
 
 lazy val root = (project in file("."))
-  .aggregate(play, core)
+  .settings(commonSettings)
+  .settings(
+    packagedArtifacts := Map.empty
+  ).aggregate(play, core)
