@@ -21,9 +21,6 @@ scalacOptions ++= Seq("-encoding", "UTF-8"
   //,"nullary-unit", "nullary-override", "unsound-match", "adapted-args", "infer-any"
 )
 
-//@see https://github.com/etorreborre/specs2/issues/283
-disablePlugins(plugins.JUnitXmlReportPlugin)
-
 testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "junitxml", "console")
 
 resolvers ++= Seq(
@@ -36,7 +33,7 @@ libraryDependencies ++= Seq(
   "javax.inject"              % "javax.inject"        % "1",
   "com.typesafe.play"         %% "play-json"          % "2.4.2", //require java 8
   "com.google.inject"         % "guice"               % "4.0"       % "test",
-  "org.specs2"                %% "specs2-core"        % "3.6.2"     % "test"
+  "org.specs2"                %% "specs2-junit"       % "3.6.2"     % "test"
 )
 
 //update from rxjava 1.0.4 (transitive dep from com.couchbase.client:core-io:1.1.1)
