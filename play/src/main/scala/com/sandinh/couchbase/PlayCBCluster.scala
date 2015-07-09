@@ -5,6 +5,7 @@ import play.api.Configuration
 import play.api.inject.ApplicationLifecycle
 import scala.concurrent.duration._
 import com.sandinh.rx.Implicits._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 @Singleton
 class PlayCBCluster @Inject() (cfg: Configuration, lifecycle: ApplicationLifecycle) extends CBCluster(cfg.underlying) {
