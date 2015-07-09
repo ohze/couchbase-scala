@@ -7,19 +7,18 @@ import com.couchbase.client.java.transcoder.Transcoder
 import com.sandinh.couchbase.transcoder._
 import com.typesafe.config.Config
 import scala.collection.JavaConverters._
-import scala.concurrent.{Future, Await}
+import scala.concurrent.Await
 import scala.util.Try
 import com.sandinh.couchbase.JavaConverters._
 import com.sandinh.rx.Implicits._
 import scala.concurrent.duration._
-import scala.concurrent.ExecutionContext.Implicits.global
 
 /** @note ensure call #disconnect() at the end of application life */
 @Singleton
 class CBCluster @Inject() (config: Config) {
-  private val env = CbEnv(config)
+  protected val env = CbEnv(config)
 
-  private val cluster: CouchbaseAsyncCluster =
+  protected val cluster: CouchbaseAsyncCluster =
     CouchbaseAsyncCluster.fromConnectionString(env, config.getString("com.sandinh.couchbase.connectionString"))
 
   /** Open bucket with typesafe config load from key com.sandinh.couchbase.buckets.`bucket`
@@ -47,13 +46,6 @@ class CBCluster @Inject() (config: Config) {
     cluster.disconnect().toFuture,
     env.disconnectTimeout.millis
   ).booleanValue
-
-  /** convention val for using with play.api.inject.ApplicationLifecycle#addStopHook */
-  val disconnectFuture: () => Future[Unit] = () =>
-    cluster.disconnect()
-      .timeout(env.disconnectTimeout, MILLISECONDS)
-      .toFuture
-      .map(_ => ())
 }
 
 private object CbEnv {
