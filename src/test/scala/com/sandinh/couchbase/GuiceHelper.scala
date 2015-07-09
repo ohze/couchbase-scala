@@ -2,15 +2,16 @@ package com.sandinh.couchbase
 
 import javax.inject.Inject
 import com.google.inject.{Guice, AbstractModule}
-import org.specs2.specification.core.Fragments
+import org.specs2.concurrent.ExecutionEnv
+import org.specs2.specification.core.{Env, Fragments}
 import scala.concurrent.duration._
 import com.typesafe.config.{ConfigFactory, Config}
 import org.specs2.matcher.Matcher
 import org.specs2.mutable.Specification
 import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
 
 trait GuiceSpecBase extends Specification {
+  implicit val ee: ExecutionEnv = Env().setTimeout(5.seconds).executionEnv
   implicit class CustomFutureMatchable[T](m: Matcher[T]) {
     def await: Matcher[Future[T]] = new FutureMatchable(m).await(0, 5.seconds)
   }
