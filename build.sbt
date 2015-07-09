@@ -1,6 +1,20 @@
+import com.typesafe.sbt.SbtScalariform._
+import scalariform.formatter.preferences._
+
 val playVersion = "2.4.2" //require java 8
 
-lazy val commonSettings = Seq(
+lazy val formatSettings = scalariformSettings ++ Seq(
+  ScalariformKeys.preferences := ScalariformKeys.preferences.value
+  .setPreference(AlignParameters, true)
+  .setPreference(AlignSingleLineCaseStatements, true)
+  .setPreference(DoubleIndentClassDeclaration, true)
+  .setPreference(MultilineScaladocCommentsStartOnFirstLine, true)
+//  .setPreference(ScaladocCommentsStopOnLastLine, true)
+  .setPreference(PlaceScaladocAsterisksBeneathSecondAsterisk, true)
+  .setPreference(SpacesAroundMultiImports, false)
+)
+
+lazy val commonSettings = formatSettings ++ Seq(
   version := "7.1.0-SNAPSHOT",
   scalaVersion := "2.11.7",
   organization := "com.sandinh",
