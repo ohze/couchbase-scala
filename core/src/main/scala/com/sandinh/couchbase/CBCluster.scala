@@ -3,6 +3,7 @@ package com.sandinh.couchbase
 import javax.inject._
 import com.couchbase.client.java.CouchbaseAsyncCluster
 import com.couchbase.client.java.document.Document
+import com.couchbase.client.java.env.CouchbaseEnvironment
 import com.couchbase.client.java.transcoder.Transcoder
 import com.sandinh.couchbase.transcoder._
 import com.typesafe.config.Config
@@ -16,10 +17,13 @@ import scala.concurrent.duration._
 /** @note ensure call #disconnect() at the end of application life */
 @Singleton
 class CBCluster @Inject() (config: Config) {
-  protected val env = CbEnv(config)
+  val env: CouchbaseEnvironment = CbEnvBuilder(config)
 
-  protected val cluster: CouchbaseAsyncCluster =
+  val asJava: CouchbaseAsyncCluster =
     CouchbaseAsyncCluster.fromConnectionString(env, config.getString("com.sandinh.couchbase.connectionString"))
+
+  @deprecated("use `asJava`", "7.1.1")
+  protected val cluster = asJava
 
   /** Open bucket with typesafe config load from key com.sandinh.couchbase.buckets.`bucket`
     * @param bucket use as a subkey of typesafe config for open bucket.
@@ -35,7 +39,7 @@ class CBCluster @Inject() (config: Config) {
     val stringTranscoder = if (legacyEncodeString) CompatStringTranscoderLegacy else CompatStringTranscoder
     val trans = transcoders :+ JsTranscoder :+ stringTranscoder
     Await.result(
-      cluster.openBucket(name, pass, trans.asJava).toFuture,
+      asJava.openBucket(name, pass, trans.asJava).toFuture,
       env.connectTimeout.millis
     ).asScala
   }
@@ -44,14 +48,14 @@ class CBCluster @Inject() (config: Config) {
   def openBucket(bucket: String): ScalaBucket = openBucket(bucket, legacyEncodeString = true)
 
   def disconnect(): Boolean = Await.result(
-    cluster.disconnect().toFuture,
+    asJava.disconnect().toFuture,
     env.disconnectTimeout.millis
   ).booleanValue
 }
 
-private object CbEnv {
+private object CbEnvBuilder {
   import java.util.concurrent.TimeUnit.MILLISECONDS
-  import com.couchbase.client.java.env.{CouchbaseEnvironment, DefaultCouchbaseEnvironment}
+  import com.couchbase.client.java.env.DefaultCouchbaseEnvironment
   import DefaultCouchbaseEnvironment.Builder
 
   def apply(config: Config): CouchbaseEnvironment = {

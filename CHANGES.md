@@ -1,6 +1,11 @@
 ## Changelogs
 we use [Semantic Versioning](http://semver.org/)
 
+##### v7.1.1
+change in CBCluster:
++ deprecate cluster. Use asJava instead
++ Make `env` public
+
 ##### v7.1.0
 + update play-json 2.4.2 (require java 8), com.couchbase.client:java-client:2.1.3, rxjava:1.0.12
 + add `couchbase-play` module for using couchbase-scala in a play application

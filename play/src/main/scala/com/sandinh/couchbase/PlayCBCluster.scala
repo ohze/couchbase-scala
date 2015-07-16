@@ -11,7 +11,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class PlayCBCluster @Inject() (cfg: Configuration, lifecycle: ApplicationLifecycle) extends CBCluster(cfg.underlying) {
   /** convention val for using with play.api.inject.ApplicationLifecycle#addStopHook */
   val disconnectFuture = () =>
-    cluster.disconnect()
+    asJava.disconnect()
       .timeout(env.disconnectTimeout, MILLISECONDS)
       .toFuture
       .map(_ => ())
