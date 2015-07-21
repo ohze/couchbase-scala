@@ -1,7 +1,7 @@
 import com.typesafe.sbt.SbtScalariform._
 import scalariform.formatter.preferences._
 
-val playVersion = "2.4.2" //require java 8
+val playVersion = "2.4.2_1" //require java 8
 
 lazy val formatSettings = scalariformSettings ++ Seq(
   ScalariformKeys.preferences := ScalariformKeys.preferences.value
@@ -60,7 +60,7 @@ lazy val play = (project in file("play"))
   .settings(commonSettings ++ Seq(
     name := "couchbase-play",
     libraryDependencies ++= Seq(
-      "com.typesafe.play" %% "play" % playVersion
+      "com.sandinh" %% "play-alone" % "2.4.2" % Optional
     )
   )).dependsOn(core)
 
