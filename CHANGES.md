@@ -1,6 +1,9 @@
 ## Changelogs
 we use [Semantic Versioning](http://semver.org/)
 
+##### v7.1.3
++ add binding: `bind[Config].toInstance(configuration.underlying)` in `com.sandinh.couchbase.PlayModule`
+
 ##### v7.1.2
 + `couchbase-play` can be used with [com.sandinh:play-alone](https://github.com/giabao/play-jdbc-standalone)
     or full [com.typesafe.play:play](http://playframework.com/)
