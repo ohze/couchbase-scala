@@ -1,8 +1,6 @@
 import com.typesafe.sbt.SbtScalariform._
 import scalariform.formatter.preferences._
 
-val playVersion = "2.4.2_1" //require java 8
-
 lazy val formatSettings = scalariformSettings ++ Seq(
   ScalariformKeys.preferences := ScalariformKeys.preferences.value
   .setPreference(AlignParameters, true)
@@ -15,7 +13,7 @@ lazy val formatSettings = scalariformSettings ++ Seq(
 )
 
 lazy val commonSettings = formatSettings ++ Seq(
-  version := "7.1.1",
+  version := "7.1.2",
   scalaVersion := "2.11.7",
   organization := "com.sandinh",
 
@@ -34,6 +32,12 @@ lazy val commonSettings = formatSettings ++ Seq(
     //,"nullary-unit", "nullary-override", "unsound-match", "adapted-args", "infer-any"
   ),
 
+  dependencyOverrides ++= Set(
+    //transitive dep from com.couchbase.client:core-io
+    "io.reactivex"    % "rxjava"        % "1.0.13",
+    "org.scala-lang"  % "scala-reflect" % scalaVersion.value // % Optional
+  ),
+
   testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "junitxml", "console"),
 
   resolvers ++= Seq(
@@ -46,13 +50,11 @@ lazy val core = (project in file("core"))
   .settings(commonSettings ++ Seq(
     name := "couchbase-scala",
     libraryDependencies ++= Seq(
-      "com.couchbase.client"      %  "java-client"        % "2.1.3",
+      "com.couchbase.client"      %  "java-client"        % "2.1.4",
       "javax.inject"              % "javax.inject"        % "1",
-      "com.typesafe.play"         %% "play-json"          % playVersion,
-      "com.google.inject"         % "guice"               % "4.0"       % "test",
-      "org.specs2"                %% "specs2-junit"       % "3.6.2"     % "test",
-      //update from rxjava 1.0.4 (transitive dep from com.couchbase.client:core-io:1.1.1)
-      "io.reactivex" % "rxjava" % "1.0.12"
+      "com.typesafe.play"         %% "play-json"          % "2.4.2", //require java 8
+      "com.google.inject"         % "guice"               % "4.0"       % Test,
+      "org.specs2"                %% "specs2-junit"       % "3.6.2"     % Test
     )
   ))
 

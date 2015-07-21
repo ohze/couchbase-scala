@@ -1,6 +1,11 @@
 ## Changelogs
 we use [Semantic Versioning](http://semver.org/)
 
+##### v7.1.2
++ `couchbase-play` can be used with [com.sandinh:play-alone](https://github.com/giabao/play-jdbc-standalone)
+    or full [com.typesafe.play:play](http://playframework.com/)
++ update `com.couchbase.client:java-client:2.1.4`
+
 ##### v7.1.1
 change in CBCluster:
 + deprecate cluster. Use asJava instead
