@@ -32,6 +32,10 @@ lazy val commonSettings = formatSettings ++ Seq(
     //,"nullary-unit", "nullary-override", "unsound-match", "adapted-args", "infer-any"
   ),
 
+  libraryDependencies ++= Seq(
+    "org.specs2"  %% "specs2-junit" % "3.6.2" % Test
+  ),
+
   dependencyOverrides ++= Set(
     //transitive dep from com.couchbase.client:core-io
     "io.reactivex"    % "rxjava"        % "1.0.13",
@@ -53,8 +57,7 @@ lazy val core = (project in file("core"))
       "com.couchbase.client"      %  "java-client"        % "2.1.4",
       "javax.inject"              % "javax.inject"        % "1",
       "com.typesafe.play"         %% "play-json"          % "2.4.2", //require java 8
-      "com.google.inject"         % "guice"               % "4.0"       % Test,
-      "org.specs2"                %% "specs2-junit"       % "3.6.2"     % Test
+      "com.google.inject"         % "guice"               % "4.0"       % Test
     )
   ))
 
