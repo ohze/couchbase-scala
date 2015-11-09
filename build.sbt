@@ -19,8 +19,8 @@ lazy val commonSettings = formatSettings ++ Seq(
 
   //see https://github.com/scala/scala/blob/2.11.x/src/compiler/scala/tools/nsc/settings/ScalaSettings.scala
   scalacOptions ++= Seq("-encoding", "UTF-8"
-    , "-target:jvm-1.7", "-deprecation", "-unchecked", "-feature"
-    , "-optimise"
+    ,"-deprecation", "-unchecked", "-feature"
+    ,"-optimise"
     ,"-Xfuture" //, "–Xverify", "-Xcheck-null"
     ,"-Ybackend:GenBCode"
     ,"-Ydelambdafy:method"
