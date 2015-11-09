@@ -1,6 +1,11 @@
 ## Changelogs
 we use [Semantic Versioning](http://semver.org/)
 
+##### v7.2.0
++ update couchbase java-client 2.2.1, rxjava 1.0.15, play-json 2.4.3, play-alone 2.4.2_1
++ note: This version is compatible with couchbase-server 2.x, 3.x, 4.x.
+see [JCBC-880](https://issues.couchbase.com/browse/JCBC-880)
+
 ##### v7.1.3
 + add binding: `bind[Config].toInstance(configuration.underlying)` in `com.sandinh.couchbase.PlayModule`
 
