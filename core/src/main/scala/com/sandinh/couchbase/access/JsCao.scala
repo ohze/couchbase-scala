@@ -1,7 +1,7 @@
 package com.sandinh.couchbase.access
 
 import com.couchbase.client.java.document.json.JsonArray
-import com.couchbase.client.java.query.{QueryParams, Query}
+import com.couchbase.client.java.query.{N1qlParams, N1qlQuery}
 import com.sandinh.couchbase.ScalaBucket
 import com.sandinh.couchbase.document.JsDocument
 import play.api.libs.json.{Json, JsValue, Format}
@@ -17,12 +17,12 @@ abstract class JsCao[T: Format](bucket: ScalaBucket) extends CaoBase[T, JsValue,
 
   protected def createDoc(id: String, expiry: Int, content: JsValue): JsDocument = new JsDocument(id, content, expiry)
 
-  final def query1(n1ql: String, qparam: QueryParams, params: AnyRef*): Future[Option[T]] = {
+  final def query1(n1ql: String, qparam: N1qlParams, params: AnyRef*): Future[Option[T]] = {
     val q =
-      if (params.isEmpty) Query.simple(n1ql, qparam)
+      if (params.isEmpty) N1qlQuery.simple(n1ql, qparam)
       else {
         val p = JsonArray.from(params: _*)
-        Query.parametrized(n1ql, p, qparam)
+        N1qlQuery.parameterized(n1ql, p, qparam)
       }
     bucket.query(q)
       .flatMap(_.rows().toFuture

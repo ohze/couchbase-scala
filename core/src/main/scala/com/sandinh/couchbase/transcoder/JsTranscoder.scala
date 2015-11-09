@@ -2,6 +2,7 @@ package com.sandinh.couchbase.transcoder
 
 import com.couchbase.client.core.lang.Tuple
 import com.couchbase.client.core.message.ResponseStatus
+import com.couchbase.client.core.message.kv.MutationToken
 import com.couchbase.client.deps.io.netty.buffer.{Unpooled, ByteBuf}
 import com.couchbase.client.java.error.TranscodingException
 import com.couchbase.client.java.transcoder.AbstractTranscoder
@@ -27,6 +28,9 @@ class JsTranscoder private extends AbstractTranscoder[JsDocument, JsValue] {
   }
 
   def newDocument(id: String, expiry: Int, content: JsValue, cas: Long) = new JsDocument(id, content, expiry, cas)
+
+  override def newDocument(id: String, expiry: Int, content: JsValue, cas: Long, mutationToken: MutationToken) =
+    new JsDocument(id, content, expiry, cas, mutationToken)
 }
 
 object JsTranscoder extends JsTranscoder

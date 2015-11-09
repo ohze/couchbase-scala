@@ -2,6 +2,7 @@ package com.sandinh.couchbase.transcoder
 
 import com.couchbase.client.core.lang.{Tuple, Tuple2}
 import com.couchbase.client.core.message.ResponseStatus
+import com.couchbase.client.core.message.kv.MutationToken
 import com.couchbase.client.deps.io.netty.buffer.{Unpooled, ByteBuf}
 import com.couchbase.client.deps.io.netty.util.CharsetUtil.UTF_8
 import com.couchbase.client.java.error.TranscodingException
@@ -30,6 +31,9 @@ abstract class CompatStringTranscoderBase extends AbstractTranscoder[CompatStrin
   }
 
   def newDocument(id: String, expiry: Int, content: String, cas: Long) = new CompatStringDocument(id, content, expiry, cas)
+
+  override def newDocument(id: String, expiry: Int, content: String, cas: Long, mutationToken: MutationToken) =
+    new CompatStringDocument(id, content, expiry, cas, mutationToken)
 
   def documentType() = classOf[CompatStringDocument]
 }

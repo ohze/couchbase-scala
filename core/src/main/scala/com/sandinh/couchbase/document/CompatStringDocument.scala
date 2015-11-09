@@ -1,5 +1,6 @@
 package com.sandinh.couchbase.document
 
+import com.couchbase.client.core.message.kv.MutationToken
 import com.couchbase.client.java.document.AbstractDocument
 
 /** Stores a properly encoded JSON scalar quoted string as the toplevel type.
@@ -10,8 +11,9 @@ import com.couchbase.client.java.document.AbstractDocument
   * + not like JsonStringDocument: This document permit decoding a stored StringDocument
   */
 class CompatStringDocument(
-  id:      String = null,
-  content: String = null,
-  expiry:  Int    = 0,
-  cas:     Long   = 0
-) extends AbstractDocument[String](id, expiry, content, cas)
+  id:            String        = null,
+  content:       String        = null,
+  expiry:        Int           = 0,
+  cas:           Long          = 0,
+  mutationToken: MutationToken = null
+) extends AbstractDocument[String](id, expiry, content, cas, mutationToken)
