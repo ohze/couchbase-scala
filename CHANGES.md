@@ -1,6 +1,9 @@
 ## Changelogs
 we use [Semantic Versioning](http://semver.org/)
 
+##### v7.2.1
++ update java-client 2.2.2, rxjava 1.0.17, play-json 2.4.6, play-alone 2.4.3
+
 ##### v7.2.0
 + update couchbase java-client 2.2.1, rxjava 1.0.15, play-json 2.4.3, play-alone 2.4.2_1
 + note: This version is compatible with couchbase-server 2.x, 3.x, 4.x.
