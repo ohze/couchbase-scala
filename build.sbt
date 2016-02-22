@@ -18,20 +18,7 @@ lazy val commonSettings = formatSettings ++ Seq(
 //  crossScalaVersions := Seq(scalaVersion.value, "2.12.0-M3"), todo enable when play-json is built for 2.12
   organization := "com.sandinh",
 
-  //see https://github.com/scala/scala/blob/2.11.x/src/compiler/scala/tools/nsc/settings/ScalaSettings.scala
-  scalacOptions ++= Seq("-encoding", "UTF-8"
-    ,"-deprecation", "-unchecked", "-feature"
-    ,"-optimise"
-    ,"-Xfuture" //, "–Xverify", "-Xcheck-null"
-    ,"-Ybackend:GenBCode"
-    ,"-Ydelambdafy:method"
-    ,"-Yinline-warnings" //, "-Yinline"
-    ,"-Ywarn-dead-code", "-Ydead-code"
-    ,"-Yclosure-elim"
-    ,"-Ywarn-unused-import", "-Ywarn-numeric-widen"
-    //`sbt doc` will fail if enable the following options!
-    //,"nullary-unit", "nullary-override", "unsound-match", "adapted-args", "infer-any"
-  ),
+  scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-feature", "-target:jvm-1.8", "-Ybackend:GenBCode"),
 
   libraryDependencies ++= Seq(
     "org.specs2"  %% "specs2-junit" % "3.6.6" % Test
@@ -39,7 +26,7 @@ lazy val commonSettings = formatSettings ++ Seq(
 
   dependencyOverrides ++= Set(
     //transitive dep from com.couchbase.client:core-io
-    "io.reactivex"    % "rxjava"        % "1.0.17",
+    "io.reactivex"    % "rxjava"        % "1.0.17", // couchbase core-io 1.2.4 dependsOn rxjava 1.0.15
     "org.scala-lang"  % "scala-reflect" % scalaVersion.value // % Optional
   ),
 
@@ -55,7 +42,7 @@ lazy val core = (project in file("core"))
   .settings(commonSettings ++ Seq(
     name := "couchbase-scala",
     libraryDependencies ++= Seq(
-      "com.couchbase.client"      %  "java-client"        % "2.2.2",
+      "com.couchbase.client"      %  "java-client"        % "2.2.4",
       "javax.inject"              % "javax.inject"        % "1",
       "com.typesafe.play"         %% "play-json"          % "2.4.6", //require java 8
       "com.google.inject"         % "guice"               % "4.0"       % Test
