@@ -13,7 +13,7 @@ lazy val formatSettings = scalariformSettings ++ Seq(
 )
 
 lazy val commonSettings = formatSettings ++ Seq(
-  version := "7.2.1",
+  version := "7.2.2",
   scalaVersion := "2.11.7",
 //  crossScalaVersions := Seq(scalaVersion.value, "2.12.0-M3"), todo enable when play-json is built for 2.12
   organization := "com.sandinh",

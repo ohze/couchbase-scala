@@ -1,6 +1,11 @@
 ## Changelogs
 we use [Semantic Versioning](http://semver.org/)
 
+##### v7.2.2
++ update couchbase java-client 2.2.4 & simplify scalacOptions
++ minor change: use TranscoderUtils.encodeStringAsUtf8 instead of Unpooled.copiedBuffer
++ fix CompatStringSpec. The failed tests is caused by caching mechanism of couchbase bucket
+
 ##### v7.2.1
 + update java-client 2.2.2, rxjava 1.0.17, play-json 2.4.6, play-alone 2.4.3
 
