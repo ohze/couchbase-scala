@@ -1,11 +1,18 @@
 package com.sandinh.couchbase
 
+import javax.inject.Inject
 import com.couchbase.client.java.document.{JsonStringDocument, StringDocument}
 import com.couchbase.client.java.error.TranscodingException
 import com.sandinh.couchbase.document.CompatStringDocument
-import scala.concurrent.ExecutionContext.Implicits.global
+import com.typesafe.config.Config
 
 class CompatStringSpec extends GuiceSpecBase {
+  @Inject private var config: Config = null
+  lazy val bk1Compat = {
+    val cluster = new CBCluster(config)
+    cluster.openBucket("bk1", legacyEncodeString = false)
+  }
+
   val id = "test_CompatStringSpec"
   val s = "ab!?-'yf89da3\"\"2$^$\""
 
@@ -40,8 +47,6 @@ class CompatStringSpec extends GuiceSpecBase {
     }
 
     "5. set CompatString get JsonString success if use CompatStringTranscoder" in {
-      val bk1Compat = cb.cluster.openBucket("bk1", legacyEncodeString = false)
-
       bk1Compat.upsert(new CompatStringDocument(id + 5, s)).map(_.content) must beEqualTo(s).await
       bk1Compat.get[JsonStringDocument](id + 5).map(_.content) must beEqualTo(s).await
     }
@@ -52,8 +57,6 @@ class CompatStringSpec extends GuiceSpecBase {
     }
 
     "7. set CompatString get String fail if use CompatStringTranscoder" in {
-      val bk1Compat = cb.cluster.openBucket("bk1", legacyEncodeString = false)
-
       bk1Compat.upsert(new CompatStringDocument(id + 7, s)).map(_.content) must beEqualTo(s).await
       bk1Compat.get[StringDocument](id + 7).map(_.content) must throwA[TranscodingException].await
     }

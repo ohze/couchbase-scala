@@ -29,8 +29,13 @@ class CBCluster @Inject() (config: Config) {
     * @param bucket use as a subkey of typesafe config for open bucket.
     * @param legacyEncodeString set = true to choose CompatStringTranscoderLegacy, false to choose CompatStringTranscoder
     * @param transcoders extra customize transcoders.
-    * Note JsTranscoder & CompatStringTranscoderLegacy | CompatStringTranscoder is auto passed to underlying `CouchbaseAsyncCluster.openBucket`,
-    * so don't need to include into `transcoders` param
+    *
+    * @note JsTranscoder & CompatStringTranscoderLegacy | CompatStringTranscoder is auto passed to underlying `CouchbaseAsyncCluster.openBucket`,
+    * so don't need to be passed into `transcoders` param.
+    *
+    * @note couchbase will cache Bucket by name.
+    * So, if you need both legacyEncodeString & not-legacyEncodeString transcoder then you MUST create another cluster.
+    * see example in com.sandinh.couchbase.CompatStringSpec.bk1Compat
     */
   def openBucket(bucket: String, legacyEncodeString: Boolean, transcoders: Transcoder[_ <: Document[_], _]*): ScalaBucket = {
     val cfg = config.getConfig(s"com.sandinh.couchbase.buckets.$bucket")
