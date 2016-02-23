@@ -3,11 +3,11 @@ package com.sandinh.couchbase.transcoder
 import com.couchbase.client.core.lang.{Tuple, Tuple2}
 import com.couchbase.client.core.message.ResponseStatus
 import com.couchbase.client.core.message.kv.MutationToken
-import com.couchbase.client.deps.io.netty.buffer.{Unpooled, ByteBuf}
+import com.couchbase.client.deps.io.netty.buffer.ByteBuf
 import com.couchbase.client.deps.io.netty.util.CharsetUtil.UTF_8
 import com.couchbase.client.java.error.TranscodingException
 import com.couchbase.client.java.transcoder.{TranscoderUtils, AbstractTranscoder}
-import TranscoderUtils.{STRING_COMMON_FLAGS, JSON_COMPAT_FLAGS, JSON_COMMON_FLAGS, hasStringFlags}
+import TranscoderUtils.{STRING_COMMON_FLAGS, JSON_COMPAT_FLAGS, JSON_COMMON_FLAGS, hasStringFlags, encodeStringAsUtf8}
 import com.sandinh.couchbase.document.CompatStringDocument
 
 /** A abstract transcoder to decode CompatStringDocument.
@@ -47,7 +47,7 @@ class CompatStringTranscoder extends CompatStringTranscoderBase {
     * @see com.couchbase.client.java.transcoder.JsonStringTranscoder#doEncode(com.couchbase.client.java.document.JsonStringDocument)
     */
   def doEncode(document: CompatStringDocument): Tuple2[ByteBuf, Integer] =
-    Tuple.create(Unpooled.copiedBuffer("\"" + document.content + "\"", UTF_8), JSON_COMPAT_FLAGS)
+    Tuple.create(encodeStringAsUtf8("\"" + document.content + "\""), JSON_COMPAT_FLAGS)
 }
 
 object CompatStringTranscoder extends CompatStringTranscoder
@@ -61,7 +61,7 @@ class CompatStringTranscoderLegacy extends CompatStringTranscoderBase {
     * @see com.couchbase.client.java.transcoder.StringTranscoder#doEncode(com.couchbase.client.java.document.StringDocument)
     */
   def doEncode(document: CompatStringDocument): Tuple2[ByteBuf, Integer] =
-    Tuple.create(Unpooled.copiedBuffer(document.content, UTF_8), STRING_COMMON_FLAGS)
+    Tuple.create(encodeStringAsUtf8(document.content), STRING_COMMON_FLAGS)
 }
 
 object CompatStringTranscoderLegacy extends CompatStringTranscoderLegacy

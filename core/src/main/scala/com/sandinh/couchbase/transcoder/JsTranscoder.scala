@@ -3,12 +3,12 @@ package com.sandinh.couchbase.transcoder
 import com.couchbase.client.core.lang.Tuple
 import com.couchbase.client.core.message.ResponseStatus
 import com.couchbase.client.core.message.kv.MutationToken
-import com.couchbase.client.deps.io.netty.buffer.{Unpooled, ByteBuf}
+import com.couchbase.client.deps.io.netty.buffer.ByteBuf
 import com.couchbase.client.java.error.TranscodingException
 import com.couchbase.client.java.transcoder.AbstractTranscoder
 import com.sandinh.couchbase.document.JsDocument
 import play.api.libs.json.{Json, JsValue}
-import com.couchbase.client.java.transcoder.TranscoderUtils.JSON_COMPAT_FLAGS
+import com.couchbase.client.java.transcoder.TranscoderUtils.{JSON_COMPAT_FLAGS, encodeStringAsUtf8}
 import com.couchbase.client.deps.io.netty.util.CharsetUtil.UTF_8
 import com.couchbase.client.java.transcoder.TranscoderUtils.hasJsonFlags
 
@@ -16,7 +16,7 @@ import com.couchbase.client.java.transcoder.TranscoderUtils.hasJsonFlags
 class JsTranscoder private extends AbstractTranscoder[JsDocument, JsValue] {
   def documentType() = classOf[JsDocument]
 
-  def doEncode(document: JsDocument) = Tuple.create(Unpooled.copiedBuffer(document.content.toString(), UTF_8), JSON_COMPAT_FLAGS)
+  def doEncode(document: JsDocument) = Tuple.create(encodeStringAsUtf8(document.content.toString()), JSON_COMPAT_FLAGS)
 
   def doDecode(id: String, content: ByteBuf, cas: Long, expiry: Int, flags: Int, status: ResponseStatus): JsDocument = {
     if (hasJsonFlags(flags)) {
