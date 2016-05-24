@@ -1,5 +1,9 @@
-## Changelogs
+## Changelog
 we use [Semantic Versioning](http://semver.org/)
+
+##### v7.3.0
++ update scala 2.11.8, couchbase client 2.2.7, play-alone 2.5.3
++ test on travis for <oraclejdk8, openjdk8> * <couchbase 4.1.1, couchbase 4.5.0-beta>
 
 ##### v7.2.2
 + update couchbase java-client 2.2.4 & simplify scalacOptions

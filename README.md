@@ -63,7 +63,7 @@ object Acc { implicit val fmt = Json.format[Acc] }
 val name = accBucket.getJsT[Acc]("some_key").map(_.name)
 ```
 
-## Changelogs
+## Changelog
 see [CHANGES.md](CHANGES.md)
 
 ## Licence

@@ -13,7 +13,7 @@ lazy val formatSettings = scalariformSettings ++ Seq(
 )
 
 lazy val commonSettings = formatSettings ++ Seq(
-  version := "7.3.0-SNAPSHOT",
+  version := "7.3.0",
   scalaVersion := "2.11.8",
   organization := "com.sandinh",
 
