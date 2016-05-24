@@ -6,12 +6,14 @@ scala:
 - 2.11.8
 
 env:
-- JDK=oraclejdk8
-- JDK=openjdk8
+- JDK=oraclejdk8 CB=4.1.1
+- JDK=openjdk8 CB=4.1.1
+- JDK=oraclejdk8 CB=4.5.0-beta
+- JDK=openjdk8 CB=4.5.0-beta
 
 before_install:
-  - sudo wget http://packages.couchbase.com/releases/4.1.1/couchbase-server-enterprise_4.1.1-ubuntu14.04_amd64.deb
-  - sudo dpkg -i couchbase-server-enterprise_4.1.1-ubuntu14.04_amd64.deb
+  - sudo wget http://packages.couchbase.com/releases/$CB/couchbase-server-enterprise_$CB-ubuntu14.04_amd64.deb
+  - sudo dpkg -i couchbase-server-enterprise_$CB-ubuntu14.04_amd64.deb
   - sleep 20
 # http://developer.couchbase.com/documentation/server/4.1/cli/cbcli-intro.html
   - /opt/couchbase/bin/couchbase-cli cluster-init -c 127.0.0.1:8091 --cluster-username=Administrator --cluster-password=password --cluster-ramsize=256
