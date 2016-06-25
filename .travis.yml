@@ -8,8 +8,8 @@ scala:
 env:
 - JDK=oraclejdk8 CB=4.1.1
 - JDK=openjdk8 CB=4.1.1
-- JDK=oraclejdk8 CB=4.5.0-beta
-- JDK=openjdk8 CB=4.5.0-beta
+- JDK=oraclejdk8 CB=4.5.0
+- JDK=openjdk8 CB=4.5.0
 
 before_install:
   - sudo wget http://packages.couchbase.com/releases/$CB/couchbase-server-enterprise_$CB-ubuntu14.04_amd64.deb
