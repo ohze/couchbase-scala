@@ -20,14 +20,7 @@ lazy val commonSettings = formatSettings ++ Seq(
   scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-feature", "-target:jvm-1.8", "-Ybackend:GenBCode"),
 
   libraryDependencies ++= Seq(
-    "org.specs2"  %% "specs2-junit" % "3.8.3" % Test
-  ),
-
-  testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "junitxml", "console"),
-
-  resolvers ++= Seq(
-    Resolver.typesafeRepo("releases"),
-    Resolver.bintrayRepo("scalaz", "releases")
+    "org.specs2"  %% "specs2-core" % "3.8.4" % Test
   )
 )
 
@@ -35,9 +28,9 @@ lazy val core = (project in file("core"))
   .settings(commonSettings ++ Seq(
     name := "couchbase-scala",
     libraryDependencies ++= Seq(
-      "com.couchbase.client"      %  "java-client"        % "2.2.7",
+      "com.couchbase.client"      %  "java-client"        % "2.3.1",
       "javax.inject"              % "javax.inject"        % "1",
-      "com.typesafe.play"         %% "play-json"          % "2.5.3", //require java 8
+      "com.typesafe.play"         %% "play-json"          % "2.5.4", //require java 8
       "com.google.inject"         % "guice"               % "4.0"       % Test
     )
   ))
