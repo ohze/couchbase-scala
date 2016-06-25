@@ -76,7 +76,6 @@ private object CbEnvBuilder {
     set("kv", b.kvTimeout)
     set("connect", b.connectTimeout)
     set("disconnect", b.disconnectTimeout)
-    b.queryEnabled(config.getBoolean("com.sandinh.couchbase.queryEnabled"))
       .build()
   }
 }
