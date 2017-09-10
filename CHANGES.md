@@ -9,7 +9,7 @@ we use [Semantic Versioning](http://semver.org/)
 + update sbt 1.0.1, sbt-sonatype 2.0, sbt-pgp 1.1.0
 + use sbt-coursier
 + use sbt-scalafmt-coursier instead of sbt-scalariform
-
++ move source code to github.com/ohze/couchbase-scala
 
 ##### v7.3.1
 + update couchbase java-client 2.3.1, play-json 2.5.4

@@ -1,6 +1,6 @@
 couchbase-scala
 ===============
-[![Build Status](https://travis-ci.org/giabao/couchbase-scala.svg)](https://travis-ci.org/giabao/couchbase-scala)
+[![Build Status](https://travis-ci.org/ohze/couchbase-scala.svg)](https://travis-ci.org/ohze/couchbase-scala)
 
 This is a library for accessing Couchbase in Scala.
 
