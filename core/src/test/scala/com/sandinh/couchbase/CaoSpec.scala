@@ -2,7 +2,6 @@ package com.sandinh.couchbase
 
 import javax.inject.Inject
 import com.sandinh.couchbase.access.JsCao1
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class CaoSpec extends GuiceSpecBase {
   @Inject private var trophyCao: TrophyCao = null

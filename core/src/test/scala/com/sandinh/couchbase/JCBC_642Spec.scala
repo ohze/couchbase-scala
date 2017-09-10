@@ -1,7 +1,6 @@
 package com.sandinh.couchbase
 
 import com.couchbase.client.java.document.JsonStringDocument
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class JCBC_642Spec extends GuiceSpecBase {
   "CBCluster" should {

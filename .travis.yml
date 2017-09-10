@@ -3,11 +3,12 @@ dist: trusty
 language: scala
 
 scala:
-- 2.11.8
+- 2.12.3
+- 2.11.11
 
 env:
-- JDK=oraclejdk8 CB=4.1.1
-- JDK=openjdk8 CB=4.1.1
+- JDK=oraclejdk8 CB=4.6.3
+- JDK=openjdk8 CB=4.6.3
 - JDK=oraclejdk8 CB=4.5.0
 - JDK=openjdk8 CB=4.5.0
 
@@ -15,7 +16,7 @@ before_install:
   - sudo wget http://packages.couchbase.com/releases/$CB/couchbase-server-enterprise_$CB-ubuntu14.04_amd64.deb
   - sudo dpkg -i couchbase-server-enterprise_$CB-ubuntu14.04_amd64.deb
   - sleep 20
-# http://developer.couchbase.com/documentation/server/4.1/cli/cbcli-intro.html
+# http://developer.couchbase.com/documentation/server/4.6/cli/cbcli-intro.html
   - /opt/couchbase/bin/couchbase-cli cluster-init -c 127.0.0.1:8091 --cluster-username=Administrator --cluster-password=password --cluster-ramsize=256
   - /opt/couchbase/bin/couchbase-cli bucket-create -c 127.0.0.1:8091 -u Administrator -p password --bucket=fodi --bucket-password=fodi_pw --bucket-type=couchbase --bucket-port=11211 --bucket-ramsize=100 --bucket-replica=0
 #  - /opt/couchbase/bin/couchbase-cli bucket-delete -c 192.168.0.1:8091 -u Administrator -p password --bucket=default
@@ -27,12 +28,14 @@ before_script:
 script:
   - sbt ++$TRAVIS_SCALA_VERSION test
 
+before_cache:
+# Cleanup the cached directories to avoid unnecessary cache updates
+- find $HOME/.ivy2/cache -name "ivydata-*.properties" -print -delete
+- find $HOME/.sbt        -name "*.lock"               -print -delete
+
 cache:
   directories:
-    - $HOME/.ivy2/cache/
-    - $HOME/.sbt/boot/
-
-before_cache:
-  # Tricks to avoid unnecessary cache updates
-  - find $HOME/.ivy2 -name "ivydata-*.properties" -delete
-  - find $HOME/.sbt -name "*.lock" -delete
+  - $HOME/.m2
+  - $HOME/.ivy2/cache
+  - $HOME/.sbt
+  - $HOME/.coursier

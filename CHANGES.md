@@ -1,6 +1,16 @@
 ## Changelog
 we use [Semantic Versioning](http://semver.org/)
 
+##### v7.4.0
++ update couchbase java-client 2.5.0, play-json 2.6.3
++ couchbase-play now depends on play instead of play-alone
++ cross compile for scala 2.12.3, 2.11.11
++ travis test on couchbase 4.6.3, 4.5.0
++ update sbt 1.0.1, sbt-sonatype 2.0, sbt-pgp 1.1.0
++ use sbt-coursier
++ use sbt-scalafmt-coursier instead of sbt-scalariform
+
+
 ##### v7.3.1
 + update couchbase java-client 2.3.1, play-json 2.5.4
 + remove config `com.sandinh.couchbase.queryEnabled`
