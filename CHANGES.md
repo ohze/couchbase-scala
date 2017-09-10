@@ -10,6 +10,9 @@ we use [Semantic Versioning](http://semver.org/)
 + use sbt-coursier
 + use sbt-scalafmt-coursier instead of sbt-scalariform
 + move source code to github.com/ohze/couchbase-scala
++ Change in PlayCBCluster:
+  - now inject (first constructor's param) Config instead of Configuration
+  - `disconnectFuture` now return `Future[lang.Boolean]` instead of `Future[Unit]`
 
 ##### v7.3.1
 + update couchbase java-client 2.3.1, play-json 2.5.4
