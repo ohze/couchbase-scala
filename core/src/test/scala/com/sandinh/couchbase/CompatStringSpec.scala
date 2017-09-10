@@ -7,10 +7,10 @@ import com.sandinh.couchbase.document.CompatStringDocument
 import com.typesafe.config.Config
 
 class CompatStringSpec extends GuiceSpecBase {
-  @Inject private var config: Config = null
+  @Inject private var config: Config = _
   lazy val bk1Compat = {
     val cluster = new CBCluster(config)
-    cluster.openBucket("bk1", legacyEncodeString = false)
+    cluster.openBucketSync("bk1", legacyEncodeString = false)
   }
 
   val id = "test_CompatStringSpec"

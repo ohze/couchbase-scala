@@ -19,7 +19,7 @@ trait GuiceSpecBase extends Specification {
   protected def cb = _cb
 
   def setup() = Guice.createInjector(new CBModule).injectMembers(this)
-  def teardown() = cb.cluster.disconnect()
+  def teardown() = cb.cluster.disconnectSync()
 
   override def map(fs: => Fragments) = step(setup()) ^ fs ^ step(teardown())
 }

@@ -1,17 +1,21 @@
 package com.sandinh.couchbase
 
+import java.lang
 import javax.inject._
+
 import com.couchbase.client.java.CouchbaseAsyncCluster
 import com.couchbase.client.java.document.Document
 import com.couchbase.client.java.env.CouchbaseEnvironment
 import com.couchbase.client.java.transcoder.Transcoder
 import com.sandinh.couchbase.transcoder._
 import com.typesafe.config.Config
+
 import scala.collection.JavaConverters._
-import scala.concurrent.Await
+import scala.concurrent.{Await, Future}
 import scala.util.Try
 import com.sandinh.couchbase.JavaConverters._
 import com.sandinh.rx.Implicits._
+
 import scala.concurrent.duration._
 
 /** @note ensure call #disconnect() at the end of application life */
@@ -21,9 +25,6 @@ class CBCluster @Inject() (config: Config) {
 
   val asJava: CouchbaseAsyncCluster =
     CouchbaseAsyncCluster.fromConnectionString(env, config.getString("com.sandinh.couchbase.connectionString"))
-
-  @deprecated("use `asJava`", "7.1.1")
-  protected val cluster = asJava
 
   /** Open bucket with typesafe config load from key com.sandinh.couchbase.buckets.`bucket`
     * @param bucket use as a subkey of typesafe config for open bucket.
@@ -37,22 +38,34 @@ class CBCluster @Inject() (config: Config) {
     * So, if you need both legacyEncodeString & not-legacyEncodeString transcoder then you MUST create another cluster.
     * see example in com.sandinh.couchbase.CompatStringSpec.bk1Compat
     */
-  def openBucket(bucket: String, legacyEncodeString: Boolean, transcoders: Transcoder[_ <: Document[_], _]*): ScalaBucket = {
+  def openBucket(bucket: String, legacyEncodeString: Boolean, transcoders: Transcoder[_ <: Document[_], _]*): Future[ScalaBucket] = {
     val cfg = config.getConfig(s"com.sandinh.couchbase.buckets.$bucket")
     val name = Try { cfg.getString("name") } getOrElse bucket
     val pass = cfg.getString("password")
     val stringTranscoder = if (legacyEncodeString) CompatStringTranscoderLegacy else CompatStringTranscoder
     val trans = transcoders :+ JsTranscoder :+ stringTranscoder
-    Await.result(
-      asJava.openBucket(name, pass, trans.asJava).toFuture,
-      env.connectTimeout.millis
-    ).asScala
+    asJava.openBucket(name, pass, trans.asJava).scMap(_.asScala).toFuture
   }
 
-  /** openBucket(bucket, legacyEncodeString = true) */
-  def openBucket(bucket: String): ScalaBucket = openBucket(bucket, legacyEncodeString = true)
+  /** @note You should never perform long-running blocking operations inside of an asynchronous stream (e.g. inside of maps or flatMaps)
+    * @see https://issues.couchbase.com/browse/JVMCBC-79 */
+  def openBucketSync(bucket: String, legacyEncodeString: Boolean, transcoders: Transcoder[_ <: Document[_], _]*): ScalaBucket =
+    Await.result(
+      openBucket(bucket, legacyEncodeString, transcoders: _*),
+      env.connectTimeout.millis
+    )
 
-  def disconnect(): Boolean = Await.result(
+  /** openBucket(bucket, legacyEncodeString = true) */
+  def openBucket(bucket: String): Future[ScalaBucket] = openBucket(bucket, legacyEncodeString = true)
+
+  /** openBucketSync(bucket, legacyEncodeString = true)
+    * @note You should never perform long-running blocking operations inside of an asynchronous stream (e.g. inside of maps or flatMaps)
+    * @see https://issues.couchbase.com/browse/JVMCBC-79 */
+  def openBucketSync(bucket: String): ScalaBucket = openBucketSync(bucket, legacyEncodeString = true)
+
+  def disconnect(): Future[lang.Boolean] = asJava.disconnect().toFuture
+
+  def disconnectSync(): Boolean = Await.result(
     asJava.disconnect().toFuture,
     env.disconnectTimeout.millis
   ).booleanValue

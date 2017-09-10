@@ -13,6 +13,13 @@ we use [Semantic Versioning](http://semver.org/)
 + Change in PlayCBCluster:
   - now inject (first constructor's param) Config instead of Configuration
   - `disconnectFuture` now return `Future[lang.Boolean]` instead of `Future[Unit]`
++ breaking changes in `CBCluster`:
+  - remove deprecated field `cluster`
+  - `openBucket` now return `Future[ScalaBucket]` instead of `ScalaBucket`.
+  - Add `openBucketSync` - which is the old synchronous `openBucket` method.
+    @note You should never perform long-running blocking operations inside of an asynchronous stream (e.g. inside of maps or flatMaps).
+    @see https://issues.couchbase.com/browse/JVMCBC-79
+  - Similar for `disconnect` (now return `Future[lang.Boolean]`) & `disconnectSync`
 
 ##### v7.3.1
 + update couchbase java-client 2.3.1, play-json 2.5.4
