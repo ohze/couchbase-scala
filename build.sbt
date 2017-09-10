@@ -34,7 +34,7 @@ lazy val play = (project in file("play"))
     )
   )).dependsOn(core)
 
-lazy val `couchbase-scala` = (project in file("."))
+lazy val `couchbase-scala-root` = (project in file("."))
   .settings(commonSettings)
   .settings(
     packagedArtifacts := Map.empty
