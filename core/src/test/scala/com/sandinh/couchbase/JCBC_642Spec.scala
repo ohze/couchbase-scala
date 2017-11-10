@@ -24,6 +24,6 @@ class JCBC_642Spec extends GuiceSpecBase {
         .flatMap { d => cb.bk2.upsert(d) }
         .map(_.content) must beEqualTo(content).await
       cfg must_!= null
-    }.pendingUntilFixed("don't know why travis pick application.conf from couchbase-scala/play instead of couchbase-scala/core")
+    }
   }
 }
