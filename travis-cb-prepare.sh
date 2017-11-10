@@ -13,7 +13,6 @@ if [ "$CB" = "5.0.0" ]; then
     -u Administrator -p password \
     --bucket=fodi \
     --bucket-type=ephemeral \
-    --bucket-port=11211 \
     --bucket-ramsize=100 \
     --bucket-replica=0
 
@@ -31,8 +30,7 @@ if [ "$CB" = "5.0.0" ]; then
     -c 127.0.0.1:8091 \
     -u Administrator -p password \
     --bucket=acc \
-    --bucket-type=couchbase\
-    --bucket-port=11211 \
+    --bucket-type=couchbase \
     --bucket-ramsize=100 \
     --bucket-replica=0
 
@@ -53,7 +51,6 @@ else
     --bucket=fodi \
     --bucket-password=fodi_pw \
     --bucket-type=couchbase \
-    --bucket-port=11211 \
     --bucket-ramsize=100 \
     --bucket-replica=0
 
@@ -63,7 +60,6 @@ else
     --bucket=acc \
     --bucket-password=acc_pw \
     --bucket-type=couchbase\
-    --bucket-port=11211 \
     --bucket-ramsize=100 \
     --bucket-replica=0
 fi
