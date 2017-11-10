@@ -14,7 +14,7 @@ env:
 
 before_install:
   - sudo wget http://packages.couchbase.com/releases/$CB/couchbase-server-enterprise_$CB-ubuntu14.04_amd64.deb
-  - sudo dpkg -i couchbase-server-enterprise_$CB-ubuntu14.04_amd64.deb
+  - sudo dpkg --force-all -i couchbase-server-enterprise_$CB-ubuntu14.04_amd64.deb
   - sleep 20
 # http://developer.couchbase.com/documentation/server/4.6/cli/cbcli-intro.html
   - /opt/couchbase/bin/couchbase-cli cluster-init -c 127.0.0.1:8091 --cluster-username=Administrator --cluster-password=password --cluster-ramsize=256
