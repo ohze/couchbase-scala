@@ -3,12 +3,12 @@ dist: trusty
 language: scala
 
 scala:
-- 2.12.3
+- 2.12.4
 - 2.11.11
 
 env:
-- JDK=oraclejdk8 CB=4.6.3
-- JDK=openjdk8 CB=4.6.3
+- JDK=oraclejdk8 CB=5.0.0
+- JDK=openjdk8 CB=5.0.0
 - JDK=oraclejdk8 CB=4.5.0
 - JDK=openjdk8 CB=4.5.0
 

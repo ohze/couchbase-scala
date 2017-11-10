@@ -1,6 +1,12 @@
 ## Changelog
 we use [Semantic Versioning](http://semver.org/)
 
+##### v7.4.1
++ update couchbase java-client 2.5.2, play-json 2.6.7
++ cross compile for scala 2.12.4, 2.11.11
++ add travis test on couchbase 5.0.0
++ update sbt 1.0.3 & some sbt plugins
+
 ##### v7.4.0
 + update couchbase java-client 2.5.0, play-json 2.6.3
 + couchbase-play now depends on play instead of play-alone
