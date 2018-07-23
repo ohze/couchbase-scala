@@ -17,8 +17,13 @@ abstract class CaoBase[T, U, D <: Document[U]: ClassTag](bucket: ScalaBucket) {
   protected def createDoc(id: String, expiry: Int, content: U): D
 
   final def get(id: String): Future[T] = bucket.get[D](id).map(d => reads(d.content))
+
   def getOrElse(id: String)(default: => T): Future[T] = get(id).recover {
     case _: DocumentDoesNotExistException => default
+  }
+
+  def getOrUpdate(id: String)(default: => T): Future[T] = get(id).recoverWith {
+    case _: DocumentDoesNotExistException => setT(id, default)
   }
 
   final def set(id: String, t: T): Future[D] = bucket.upsert(createDoc(id, expiry(), writes(t)))
