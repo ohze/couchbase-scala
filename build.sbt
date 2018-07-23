@@ -1,7 +1,7 @@
 lazy val commonSettings = Seq(
   version := "7.4.2",
-  scalaVersion := "2.12.4",
-  crossScalaVersions := Seq("2.11.11", "2.12.4"),
+  scalaVersion := "2.12.6",
+  crossScalaVersions := Seq("2.11.12", "2.12.6"),
   organization := "com.sandinh",
 
   scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-feature", "-target:jvm-1.8"),
@@ -11,7 +11,8 @@ lazy val commonSettings = Seq(
   })
 )
 
-val playVersion = "2.6.7"
+val playVersion = "2.6.17"
+val playJsonVersion = "2.6.9"
 
 val specs2 = "org.specs2"        %% "specs2-core"  % "4.0.1" % Test
 
@@ -19,11 +20,11 @@ lazy val core = (project in file("core"))
   .settings(commonSettings ++ Seq(
     name := "couchbase-scala",
     libraryDependencies ++= specs2 +: Seq(
-      "com.couchbase.client"      % "java-client"         % "2.5.2",
+      "com.couchbase.client"      % "java-client"         % "2.6.0",
       "javax.inject"              % "javax.inject"        % "1",
-      "com.typesafe.play"         %% "play-json"          % playVersion,
-      "com.typesafe"              % "config"              % "1.3.2",
-      "com.google.inject"         % "guice"               % "4.1.0" % Test
+      "com.typesafe.play"         %% "play-json"          % playJsonVersion,
+      "com.typesafe"              % "config"              % "1.3.3",
+      "com.google.inject"         % "guice"               % "4.2.0" % Test
     )
   ))
 

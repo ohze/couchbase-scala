@@ -1,6 +1,11 @@
 ## Changelog
 we use [Semantic Versioning](http://semver.org/)
 
+##### v7.4.2
++ update couchbase java-client 2.6.0, play-json 2.6.9 (latest, corresponding with play 2.6.17)
++ cross compile for scala 2.12.6, 2.11.12
++ update sbt 1.1.6 & some sbt plugins
+
 ##### v7.4.1
 + update couchbase java-client 2.5.2, play-json 2.6.7
 + cross compile for scala 2.12.4, 2.11.11
