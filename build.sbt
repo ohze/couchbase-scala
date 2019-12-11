@@ -5,7 +5,7 @@ lazy val commonSettings = Seq(
   organization := "com.sandinh",
 
   scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-feature"),
-)
+) ++ MySonatype.settings
 
 val playVersion = "2.8.0-RC5"
 val playJsonVersion = "2.8.0"
