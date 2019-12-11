@@ -9,13 +9,13 @@ import scala.concurrent.ExecutionContext.Implicits.global
 trait WithCaoKey1[T, A, U, D <: Document[U]] { self: CaoBase[T, U, D] =>
   protected def key(a: A): String
 
-  final def get(a: A): Future[T] = self.get(key(a))
-  final def getOrElse(a: A)(default: => T): Future[T] = self.getOrElse(key(a))(default)
+  final def get(a: A): Future[T] = self.getWithId(key(a))
+  final def getOrElse(a: A)(default: => T): Future[T] = self.getOrElseWithId(key(a))(default)
   final def getBulk(aa: Seq[A]): Future[Seq[T]] = Future.traverse(aa)(get)
 
-  final def set(a: A, t: T): Future[D] = self.set(key(a), t)
+  final def set(a: A, t: T): Future[D] = self.setWithId(key(a), t)
   /** convenient method. = set(..).map(_ => t) */
-  final def setT(a: A, t: T): Future[T] = self.set(key(a), t).map(_ => t)
+  final def setT(a: A, t: T): Future[T] = self.setWithId(key(a), t).map(_ => t)
   final def setBulk(aa: Seq[A], tt: Seq[T]): Future[Seq[D]] = Future.traverse(aa zip tt) {
     case (a, t) => set(a, t)
   }
@@ -34,5 +34,5 @@ trait WithCaoKey1[T, A, U, D <: Document[U]] { self: CaoBase[T, U, D] =>
 
   final def flatChangeBulk(aa: Seq[A])(f: Option[T] => Future[T]): Future[Seq[D]] = Future.traverse(aa)(flatChange(_)(f))
 
-  final def remove(a: A): Future[D] = self.remove(key(a))
+  final def remove(a: A): Future[D] = self.removeWithId(key(a))
 }

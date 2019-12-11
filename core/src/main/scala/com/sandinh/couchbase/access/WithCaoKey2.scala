@@ -12,13 +12,13 @@ trait WithCaoKey2[T, A, B, U, D <: Document[U]] { self: CaoBase[T, U, D] =>
     */
   protected def key(a: A, b: B): String
 
-  final def get(a: A, b: B): Future[T] = self.get(key(a, b))
-  final def getOrElse(a: A, b: B)(default: => T): Future[T] = self.getOrElse(key(a, b))(default)
+  final def get(a: A, b: B): Future[T] = self.getWithId(key(a, b))
+  final def getOrElse(a: A, b: B)(default: => T): Future[T] = self.getOrElseWithId(key(a, b))(default)
   final def getBulk(aa: Seq[A], b: B): Future[Seq[T]] = Future.traverse(aa)(get(_, b))
 
-  final def set(a: A, b: B, t: T): Future[D] = self.set(key(a, b), t)
+  final def set(a: A, b: B, t: T): Future[D] = self.setWithId(key(a, b), t)
   /** convenient method. = set(..).map(_ => t) */
-  final def setT(a: A, b: B, t: T): Future[T] = self.set(key(a, b), t).map(_ => t)
+  final def setT(a: A, b: B, t: T): Future[T] = self.setWithId(key(a, b), t).map(_ => t)
   final def setBulk(aa: Seq[A], b: B, tt: Seq[T]): Future[Seq[D]] = Future.traverse(aa zip tt) {
     case (a, t) => set(a, b, t)
   }
@@ -37,5 +37,5 @@ trait WithCaoKey2[T, A, B, U, D <: Document[U]] { self: CaoBase[T, U, D] =>
 
   final def flatChangeBulk(aa: Seq[A], b: B)(f: Option[T] => Future[T]): Future[Seq[D]] = Future.traverse(aa)(flatChange(_, b)(f))
 
-  final def remove(a: A, b: B): Future[D] = self.remove(key(a, b))
+  final def remove(a: A, b: B): Future[D] = self.removeWithId(key(a, b))
 }
