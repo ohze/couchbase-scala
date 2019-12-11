@@ -13,7 +13,7 @@ import scala.concurrent.Future
 import com.sandinh.rx.Implicits._
 import scala.reflect.ClassTag
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 object Implicits {
   object DocCls {

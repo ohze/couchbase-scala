@@ -22,6 +22,7 @@ lazy val core = (project in file("core"))
       "com.typesafe.play"         %% "play-json"          % playJsonVersion,
       "com.typesafe"              % "config"              % "1.4.0", //same as akka-actor:2.6.0
       "com.google.inject"         % "guice"               % "4.2.2" % Test,
+      "org.scala-lang.modules" %% "scala-collection-compat" % "2.1.2",
     )
   ))
 
