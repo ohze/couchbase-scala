@@ -1,5 +1,5 @@
 lazy val commonSettings = Seq(
-  version := "8.0.0-SNAPSHOT",
+  git.useGitDescribe := true, //auto set version
   scalaVersion := "2.13.1",
   crossScalaVersions := Seq("2.13.1", "2.12.10"),
   organization := "com.sandinh",
@@ -14,6 +14,7 @@ val specs2 = "org.specs2"        %% "specs2-core"  % "4.8.1" % Test
 val slf4jSimple = "org.slf4j" % "slf4j-simple" % "1.7.29" % Test
 
 lazy val core = (project in file("core"))
+  .enablePlugins(GitVersioning)
   .settings(commonSettings ++ Seq(
     name := "couchbase-scala",
     libraryDependencies ++= Seq(specs2, slf4jSimple,
@@ -27,6 +28,7 @@ lazy val core = (project in file("core"))
   ))
 
 lazy val play = (project in file("play"))
+  .enablePlugins(GitVersioning)
   .settings(commonSettings ++ Seq(
     name := "couchbase-play",
     libraryDependencies ++= Seq(specs2, slf4jSimple,
@@ -36,6 +38,7 @@ lazy val play = (project in file("play"))
   )).dependsOn(core)
 
 lazy val `couchbase-scala-root` = (project in file("."))
+  .enablePlugins(GitVersioning)
   .settings(commonSettings)
   .settings(
     packagedArtifacts := Map.empty

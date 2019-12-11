@@ -78,6 +78,10 @@ docker exec -i cb /tmp/cb-test-prepare.sh
 ```sbtshell
 test
 ```
+
+We use [git describe for versioning](https://github.com/sbt/sbt-git#versioning-with-git)
+When prepare a new breaking change version, you must add a tag for that commit in format Major.Minor.Micro-alpha
+
 ## Licence
 This software is licensed under the Apache 2 license:
 http://www.apache.org/licenses/LICENSE-2.0
