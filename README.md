@@ -68,6 +68,16 @@ val name = accBucket.getJsT[Acc]("some_key").map(_.name)
 ## Changelog
 see [CHANGES.md](CHANGES.md)
 
+## Dev guide
+```shell script
+docker run -d --name cb -p 8091-8094:8091-8094 -p 11210:11210 couchbase:5.0.1
+docker cp cb-test-prepare.sh cb:/tmp
+docker exec -i cb /tmp/cb-test-prepare.sh
+```
+
+```sbtshell
+test
+```
 ## Licence
 This software is licensed under the Apache 2 license:
 http://www.apache.org/licenses/LICENSE-2.0

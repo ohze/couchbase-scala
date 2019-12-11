@@ -1,25 +1,22 @@
 sudo: required
-dist: trusty
+dist: xenial
 language: scala
 
 scala:
-- 2.12.6
-- 2.11.12
-
+- 2.12.10
+- 2.13.1
+jdk:
+  - openjdk8
+  - openjdk11
 env:
-- JDK=oraclejdk8 CB=5.0.0
-- JDK=openjdk8 CB=5.0.0
-- JDK=oraclejdk8 CB=4.5.0
-- JDK=openjdk8 CB=4.5.0
+  global:
+  - CB_VERSION=5.0.1
 
 before_install:
-  - sudo wget http://packages.couchbase.com/releases/$CB/couchbase-server-enterprise_$CB-ubuntu14.04_amd64.deb
-  - sudo dpkg --force-all -i couchbase-server-enterprise_$CB-ubuntu14.04_amd64.deb
+  - wget http://packages.couchbase.com/releases/$CB_VERSION/couchbase-server-enterprise_$CB_VERSION-ubuntu16.04_amd64.deb
+  - sudo dpkg --force-all -i ouchbase-server-enterprise_$CB_VERSION-ubuntu16.04_amd64.deb
   - sleep 20
-  - ./travis-cb-prepare.sh
-
-before_script:
-  - jdk_switcher use $JDK
+  - ./cb-test-prepare.sh
 
 script:
   - sbt ++$TRAVIS_SCALA_VERSION test
