@@ -1,37 +1,34 @@
 lazy val commonSettings = Seq(
-  version := "7.4.2",
-  scalaVersion := "2.12.6",
-  crossScalaVersions := Seq("2.11.12", "2.12.6"),
+  version := "8.0.0-SNAPSHOT",
+  scalaVersion := "2.13.1",
+  crossScalaVersions := Seq("2.13.1", "2.12.10"),
   organization := "com.sandinh",
 
-  scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-feature", "-target:jvm-1.8"),
-  scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
-    case Some((2, 11)) => Seq("-Ybackend:GenBCode")
-    case _ => Nil
-  })
+  scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-feature"),
 )
 
-val playVersion = "2.6.17"
-val playJsonVersion = "2.6.9"
+val playVersion = "2.8.0-RC5"
+val playJsonVersion = "2.8.0"
 
-val specs2 = "org.specs2"        %% "specs2-core"  % "4.0.1" % Test
+val specs2 = "org.specs2"        %% "specs2-core"  % "4.8.1" % Test
+val slf4jSimple = "org.slf4j" % "slf4j-simple" % "1.7.29" % Test
 
 lazy val core = (project in file("core"))
   .settings(commonSettings ++ Seq(
     name := "couchbase-scala",
-    libraryDependencies ++= specs2 +: Seq(
-      "com.couchbase.client"      % "java-client"         % "2.6.0",
+    libraryDependencies ++= Seq(specs2, slf4jSimple,
+      "com.couchbase.client"      % "java-client"         % "2.7.11",
       "javax.inject"              % "javax.inject"        % "1",
       "com.typesafe.play"         %% "play-json"          % playJsonVersion,
-      "com.typesafe"              % "config"              % "1.3.3",
-      "com.google.inject"         % "guice"               % "4.2.0" % Test
+      "com.typesafe"              % "config"              % "1.4.0", //same as akka-actor:2.6.0
+      "com.google.inject"         % "guice"               % "4.2.2" % Test,
     )
   ))
 
 lazy val play = (project in file("play"))
   .settings(commonSettings ++ Seq(
     name := "couchbase-play",
-    libraryDependencies ++= specs2 +: Seq(
+    libraryDependencies ++= Seq(specs2, slf4jSimple,
       "com.typesafe.play" %% "play"       % playVersion,
       "com.typesafe.play" %% "play-guice" % playVersion
     )
