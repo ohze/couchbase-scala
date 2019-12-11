@@ -69,6 +69,8 @@ val name = accBucket.getJsT[Acc]("some_key").map(_.name)
 see [CHANGES.md](CHANGES.md)
 
 ## Dev guide
+
++ prepare couchbase for testing
 ```shell script
 docker run -d --name cb -p 8091-8094:8091-8094 -p 11210:11210 couchbase:5.0.1
 docker cp cb-test-prepare.sh cb:/tmp
@@ -79,8 +81,16 @@ docker exec -i cb /tmp/cb-test-prepare.sh
 test
 ```
 
++ versioning
 We use [git describe for versioning](https://github.com/sbt/sbt-git#versioning-with-git)
 When prepare a new breaking change version, you must add a tag for that commit in format Major.Minor.Micro-alpha
+
++ publishing
+https://github.com/xerial/sbt-sonatype#publishing-your-artifact
+```sbtshell
++publishSigned
+sonatypeBundleRelease
+```
 
 ## Licence
 This software is licensed under the Apache 2 license:
