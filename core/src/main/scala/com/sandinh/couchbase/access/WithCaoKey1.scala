@@ -12,6 +12,7 @@ trait WithCaoKey1[T, A, U, D <: Document[U]] { self: CaoBase[T, U, D] =>
   final def get(a: A): Future[T] = self.getWithId(key(a))
   final def getOrElse(a: A)(default: => T): Future[T] = self.getOrElseWithId(key(a))(default)
   final def getBulk(aa: Seq[A]): Future[Seq[T]] = Future.traverse(aa)(get)
+  final def getOrUpdate(a: A)(default: => T): Future[T] = self.getOrUpdateWithId(key(a))(default)
 
   final def set(a: A, t: T): Future[D] = self.setWithId(key(a), t)
   /** convenient method. = set(..).map(_ => t) */
