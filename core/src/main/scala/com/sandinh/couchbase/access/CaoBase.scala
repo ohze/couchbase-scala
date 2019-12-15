@@ -23,13 +23,13 @@ abstract class CaoBase[T, U, D <: Document[U]: ClassTag](bucket: ScalaBucket) {
   }
 
   def getOrUpdateWithId(id: String)(default: => T): Future[T] = getWithId(id).recoverWith {
-    case _: DocumentDoesNotExistException => setTWithId(id, default)
+    case _: DocumentDoesNotExistException => setWithIdT(id, default)
   }
 
   final def setWithId(id: String, t: T): Future[D] = bucket.upsert(createDoc(id, expiry(), writes(t)))
 
   /** convenient method. = set(..).map(_ => t) */
-  final def setTWithId(id: String, t: T): Future[T] = setWithId(id, t).map(_ => t)
+  final def setWithIdT(id: String, t: T): Future[T] = setWithId(id, t).map(_ => t)
 
   final def removeWithId(id: String): Future[D] = bucket.remove[D](id)
 }
