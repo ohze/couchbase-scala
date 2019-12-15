@@ -81,12 +81,24 @@ docker exec -i cb /tmp/cb-test-prepare.sh
 test
 ```
 
-+ versioning
-We use [git describe for versioning](https://github.com/sbt/sbt-git#versioning-with-git)
-When prepare a new breaking change version, you must add a tag for that commit in format Major.Minor.Micro-alpha
+## publish checklist
++ should add unit test
++ should change [[build.sbt]] / version after publishing
++ MUST change [[build.sbt]] / version when your commit introduce a new break change (increase the minor number)
++ MUST tag the publishing git commit
++ MUST push to github (push tag too)
++ MUST run `sbt clean +test`
+(`+test` to test against all crossScalaVersions in [[build.sbt]])
++ if you publish from sbtshell in IDEA or from an already running sbt shell then
+MUST run the following tasks:
+```sbtshell
+reload
+clean
++test
+```
++ MUST update [CHANGES.md]!
 
-+ publishing
-https://github.com/xerial/sbt-sonatype#publishing-your-artifact
++ after that, [publish by](https://github.com/xerial/sbt-sonatype#publishing-your-artifact):
 ```sbtshell
 +publishSigned
 sonatypeBundleRelease
@@ -96,4 +108,4 @@ sonatypeBundleRelease
 This software is licensed under the Apache 2 license:
 http://www.apache.org/licenses/LICENSE-2.0
 
-Copyright 2014-2017 Sân Đình (http://sandinh.com)
+Copyright 2014-2019 Sân Đình (https://sandinh.com)
