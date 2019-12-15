@@ -76,6 +76,7 @@ docker run -d --name cb -p 8091-8094:8091-8094 -p 11210:11210 couchbase:5.0.1
 docker cp cb-test-prepare.sh cb:/tmp
 docker exec -i cb /tmp/cb-test-prepare.sh
 ```
+or, if you have prepared before => only run `docker start cb`
 
 ```sbtshell
 test
