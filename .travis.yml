@@ -14,7 +14,7 @@ env:
 
 before_install:
   - wget http://packages.couchbase.com/releases/$CB_VERSION/couchbase-server-enterprise_$CB_VERSION-ubuntu16.04_amd64.deb
-  - sudo dpkg --force-all -i ouchbase-server-enterprise_$CB_VERSION-ubuntu16.04_amd64.deb
+  - sudo dpkg --force-all -i couchbase-server-enterprise_$CB_VERSION-ubuntu16.04_amd64.deb
   - sleep 20
   - ./cb-test-prepare.sh
 
