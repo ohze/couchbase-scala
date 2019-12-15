@@ -1,6 +1,11 @@
 ## Changelog
 we use [Semantic Versioning](http://semver.org/)
 
+##### 8.1.0
++ break change! rename CaoBase.setTWithId -> setWithIdT
++ add WithCaoKey1.getOrUpdate convenient method
++ change back to normal `version := `, don't use sbt-git versioning
+
 ##### 8.0.0-1-g0a620a6
 + update play 2.8.0
 
