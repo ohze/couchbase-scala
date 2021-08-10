@@ -28,6 +28,8 @@ abstract class CaoBase[T, U, D <: Document[U]: ClassTag](bucket: ScalaBucket) {
 
   final def set(id: String, t: T): Future[D] = bucket.upsert(createDoc(id, expiry(), writes(t)))
 
+  final def update(id: String, t: T): Future[D] = bucket.replace(createDoc(id, expiry(), writes(t)))
+
   /** convenient method. = set(..).map(_ => t) */
   final def setT(id: String, t: T): Future[T] = set(id, t).map(_ => t)
 
