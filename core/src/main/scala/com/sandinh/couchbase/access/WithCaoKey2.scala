@@ -16,7 +16,11 @@ trait WithCaoKey2[T, A, B, U, D <: Document[U]] { self: CaoBase[T, U, D] =>
   final def getOrElse(a: A, b: B)(default: => T): Future[T] = self.getOrElse(key(a, b))(default)
   final def getBulk(aa: Seq[A], b: B): Future[Seq[T]] = Future.traverse(aa)(get(_, b))
 
+  final def getWithCAS(a: A, b: B): Future[(T, Long)] = self.getWithCAS(key(a, b))
+  final def getOrElseWithCAS(a: A, b: B)(default: => T): Future[(T, Long)] = self.getOrElseWithCAS(key(a, b))(default)
+
   final def set(a: A, b: B, t: T): Future[D] = self.set(key(a, b), t)
+  final def updateWithCAS(a: A, b: B, t: T, cas: Long = 0): Future[D] = self.update(key(a, b), t, cas)
   /** convenient method. = set(..).map(_ => t) */
   final def setT(a: A, b: B, t: T): Future[T] = self.set(key(a, b), t).map(_ => t)
   final def setBulk(aa: Seq[A], b: B, tt: Seq[T]): Future[Seq[D]] = Future.traverse(aa zip tt) {
