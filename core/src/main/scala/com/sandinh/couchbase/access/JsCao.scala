@@ -15,7 +15,7 @@ abstract class JsCao[T: Format](bucket: ScalaBucket) extends CaoBase[T, JsValue,
   protected def reads(u: JsValue): T = u.as[T]
   protected def writes(t: T): JsValue = Json.toJson(t)
 
-  protected def createDoc(id: String, expiry: Int, content: JsValue): JsDocument = new JsDocument(id, content, expiry)
+  protected def createDoc(id: String, expiry: Int, content: JsValue, cas: Long = 0L): JsDocument = new JsDocument(id, content, expiry, cas)
 
   final def query1(n1ql: String, qparam: N1qlParams, params: AnyRef*): Future[Option[T]] = {
     val q =
