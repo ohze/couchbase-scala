@@ -11,5 +11,7 @@ case class Trophy(
 
 object Trophy {
   implicit val fmt = Json.format[Trophy]
-  val t1 = Trophy("giabao", List(List(1, 2, 3), List(4, 5, 6)))
+  val t1: Trophy = Trophy("giabao", List(List(1, 2, 3), List(4, 5, 6)))
+  val t2: Trophy = Trophy("thanhpv", List(List(1, 2, 3), List(4, 5, 6)))
+  val t3: Trophy = Trophy("truongnx", List(List(1, 2, 3), List(4, 5, 6)))
 }
