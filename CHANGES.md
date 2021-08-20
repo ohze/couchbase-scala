@@ -1,5 +1,9 @@
 ## Changelog
 we use [Semantic Versioning](http://semver.org/)
+##### v7.4.4
++ Support Concurrent Document Mutations: [https://docs.couchbase.com/java-sdk/2.7/concurrent-mutations-cluster.html](https://docs.couchbase.com/java-sdk/2.7/concurrent-mutations-cluster.html)
++ Use CAS value
+
 
 ##### v7.4.2
 + update couchbase java-client 2.6.0, play-json 2.6.9 (latest, corresponding with play 2.6.17)

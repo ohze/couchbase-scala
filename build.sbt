@@ -8,8 +8,9 @@ lazy val commonSettings = Seq(
   scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, 11)) => Seq("-Ybackend:GenBCode")
     case _ => Nil
-  })
-)
+  }),
+  updateOptions := updateOptions.value.withGigahorse(false)
+) ++ MySonatype.settings
 
 val playVersion = "2.6.17"
 val playJsonVersion = "2.6.9"
