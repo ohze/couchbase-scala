@@ -68,6 +68,43 @@ val name = accBucket.getJsT[Acc]("some_key").map(_.name)
 ## Changelog
 see [CHANGES.md](CHANGES.md)
 
+## Dev guide
+
++ prepare couchbase for testing
+```shell script
+docker run -d --name cb -p 8091-8094:8091-8094 -p 11210:11210 couchbase:5.0.1
+docker cp travis-cb-prepare.sh cb:/tmp
+docker exec -i cb /tmp/travis-cb-prepare.sh
+```
+or, if you have prepared before => only run `docker start cb`
+
+```sbtshell
+test
+```
+
+## publish checklist
++ should add unit test
++ should change [[build.sbt]] / version after publishing
++ MUST change [[build.sbt]] / version when your commit introduce a new break change (increase the minor number)
++ MUST tag the publishing git commit
++ MUST push to github (push tag too)
++ MUST run `sbt clean +test`
+  (`+test` to test against all crossScalaVersions in [[build.sbt]])
++ if you publish from sbtshell in IDEA or from an already running sbt shell then
+  MUST run the following tasks:
+```sbtshell
+reload
+clean
++test
+```
++ MUST update [CHANGES.md]!
+
++ after that, [publish by](https://github.com/xerial/sbt-sonatype#publishing-your-artifact):
+```sbtshell
++publishSigned
+sonatypeBundleRelease
+```
+
 ## Licence
 This software is licensed under the Apache 2 license:
 http://www.apache.org/licenses/LICENSE-2.0
