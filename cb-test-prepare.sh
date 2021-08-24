@@ -7,7 +7,7 @@
     --cluster-password=password \
     --cluster-ramsize=256
 
-if [ "$CB" = "5.0.0" ]; then
+if [ "${CB:0:1}" != "4" ]; then
 /opt/couchbase/bin/couchbase-cli bucket-create \
     -c 127.0.0.1:8091 \
     -u Administrator -p password \

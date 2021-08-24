@@ -26,7 +26,7 @@ jobs:
             couchbase:enterprise-${{ matrix.couchbase }}
 
           for i in {1..5}; do
-            docker exec cb /cb-test-prepare.sh && break || sleep 8;
+            docker exec -e CB=${{ matrix.couchbase }} cb /cb-test-prepare.sh && break || sleep 8;
           done
 
         working-directory: .
