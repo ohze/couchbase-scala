@@ -1,6 +1,6 @@
 couchbase-scala
 ===============
-[![Build Status](https://github.com/ohze/couchbase-scala/actions/workflows/test.yml/badge.svg)](https://github.com/ohze/couchbase-scala/actions/workflows/test.yml)
+[![Build Status](https://github.com/ohze/couchbase-scala/actions/workflows/test.yml/badge.svg?branch=7.x)](https://github.com/ohze/couchbase-scala/actions/workflows/test.yml)
 
 This is a library for accessing Couchbase in Scala.
 
