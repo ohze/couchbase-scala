@@ -1,3 +1,4 @@
+# Note: We have migrated travis to Github Action
 sudo: required
 dist: trusty
 language: scala
