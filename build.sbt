@@ -12,8 +12,8 @@ lazy val commonSettings = Seq(
   updateOptions := updateOptions.value.withGigahorse(false)
 ) ++ MySonatype.settings
 
-val playVersion = "2.6.17"
-val playJsonVersion = "2.6.9"
+val playVersion = "2.6.25"
+val playJsonVersion = "2.6.14"
 
 val specs2 = "org.specs2"        %% "specs2-core"  % "4.0.1" % Test
 
@@ -25,7 +25,7 @@ lazy val core = project
       "javax.inject"              % "javax.inject"        % "1",
       "com.typesafe.play"         %% "play-json"          % playJsonVersion,
       "com.typesafe"              % "config"              % "1.3.3",
-      "com.google.inject"         % "guice"               % "4.2.0" % Test
+      "com.google.inject"         % "guice"               % "4.2.3" % Test
     )
   ))
 
