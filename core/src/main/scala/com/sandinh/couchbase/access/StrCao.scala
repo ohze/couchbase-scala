@@ -5,7 +5,7 @@ import com.sandinh.couchbase.ScalaBucket
 
 /** Base class for Couchbase Access Object to access StringDocument that can be decode/encode to/from the `T` type */
 abstract class StrCao[T](bucket: ScalaBucket) extends CaoBase[T, String, CompatStringDocument](bucket) {
-  protected def createDoc(id: String, expiry: Int, content: String) = new CompatStringDocument(id, content, expiry)
+  protected def createDoc(id: String, expiry: Int, content: String, cas: Long = 0L) = new CompatStringDocument(id, content, expiry, cas)
 }
 
 /** Base class for Couchbase Access Object to access StringDocument that can be decode/encode to/from the `T` type - which is
