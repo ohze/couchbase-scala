@@ -17,7 +17,7 @@ val playJsonVersion = "2.6.9"
 
 val specs2 = "org.specs2"        %% "specs2-core"  % "4.0.1" % Test
 
-lazy val core = (project in file("core"))
+lazy val core = project
   .settings(commonSettings ++ Seq(
     name := "couchbase-scala",
     libraryDependencies ++= specs2 +: Seq(
@@ -29,7 +29,7 @@ lazy val core = (project in file("core"))
     )
   ))
 
-lazy val play = (project in file("play"))
+lazy val play = project
   .settings(commonSettings ++ Seq(
     name := "couchbase-play",
     libraryDependencies ++= specs2 +: Seq(
@@ -38,7 +38,7 @@ lazy val play = (project in file("play"))
     )
   )).dependsOn(core)
 
-lazy val `couchbase-scala-root` = (project in file("."))
+lazy val root = (project in file("."))
   .settings(commonSettings)
   .settings(
     packagedArtifacts := Map.empty
