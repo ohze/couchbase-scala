@@ -12,6 +12,8 @@ lazy val commonSettings = Seq(
   updateOptions := updateOptions.value.withGigahorse(false)
 ) ++ MySonatype.settings
 
+ThisBuild / versionScheme := Some("early-semver")
+
 val playVersion = "2.6.17"
 val playJsonVersion = "2.6.9"
 
