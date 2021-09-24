@@ -11,9 +11,9 @@ import com.couchbase.client.java.document.AbstractDocument
   * + not like JsonStringDocument: This document permit decoding a stored StringDocument
   */
 class CompatStringDocument(
-  id:            String        = null,
-  content:       String        = null,
-  expiry:        Int           = 0,
-  cas:           Long          = 0,
+  id: String = null,
+  content: String = null,
+  expiry: Int = 0,
+  cas: Long = 0,
   mutationToken: MutationToken = null
 ) extends AbstractDocument[String](id, expiry, content, cas, mutationToken)

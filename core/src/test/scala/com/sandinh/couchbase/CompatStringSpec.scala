@@ -16,14 +16,20 @@ class CompatStringSpec extends GuiceSpecBase {
   val id = "test_CompatStringSpec"
   val s = "ab!?-'yf89da3\"\"2$^$\""
 
-  def stringSet(idSuffix: Int) = cb.bk1.upsert(StringDocument.create(id + idSuffix, s)).map(_.content)
-  def stringGet(idSuffix: Int) = cb.bk1.get[StringDocument](id + idSuffix).map(_.content)
+  def stringSet(idSuffix: Int) =
+    cb.bk1.upsert(StringDocument.create(id + idSuffix, s)).map(_.content)
+  def stringGet(idSuffix: Int) =
+    cb.bk1.get[StringDocument](id + idSuffix).map(_.content)
 
-  def jsonStringSet(idSuffix: Int) = cb.bk1.upsert(JsonStringDocument.create(id + idSuffix, s)).map(_.content)
-  def jsonStringGet(idSuffix: Int) = cb.bk1.get[JsonStringDocument](id + idSuffix).map(_.content)
+  def jsonStringSet(idSuffix: Int) =
+    cb.bk1.upsert(JsonStringDocument.create(id + idSuffix, s)).map(_.content)
+  def jsonStringGet(idSuffix: Int) =
+    cb.bk1.get[JsonStringDocument](id + idSuffix).map(_.content)
 
-  def compatStringSet(idSuffix: Int) = cb.bk1.upsert(new CompatStringDocument(id + idSuffix, s)).map(_.content)
-  def compatStringGet(idSuffix: Int) = cb.bk1.get[CompatStringDocument](id + idSuffix).map(_.content)
+  def compatStringSet(idSuffix: Int) =
+    cb.bk1.upsert(new CompatStringDocument(id + idSuffix, s)).map(_.content)
+  def compatStringGet(idSuffix: Int) =
+    cb.bk1.get[CompatStringDocument](id + idSuffix).map(_.content)
 
   "String transcoders" should {
     "1. set String get JsonString throw TranscodingException" in {
@@ -47,8 +53,12 @@ class CompatStringSpec extends GuiceSpecBase {
     }
 
     "5. set CompatString get JsonString success if use CompatStringTranscoder" in {
-      bk1Compat.upsert(new CompatStringDocument(id + 5, s)).map(_.content) must beEqualTo(s).await
-      bk1Compat.get[JsonStringDocument](id + 5).map(_.content) must beEqualTo(s).await
+      bk1Compat
+        .upsert(new CompatStringDocument(id + 5, s))
+        .map(_.content) must beEqualTo(s).await
+      bk1Compat.get[JsonStringDocument](id + 5).map(_.content) must beEqualTo(
+        s
+      ).await
     }
 
     "6. set CompatString get String success if use LegacyStringTranscoder (default)" in {
@@ -57,8 +67,12 @@ class CompatStringSpec extends GuiceSpecBase {
     }
 
     "7. set CompatString get String fail if use CompatStringTranscoder" in {
-      bk1Compat.upsert(new CompatStringDocument(id + 7, s)).map(_.content) must beEqualTo(s).await
-      bk1Compat.get[StringDocument](id + 7).map(_.content) must throwA[TranscodingException].await
+      bk1Compat
+        .upsert(new CompatStringDocument(id + 7, s))
+        .map(_.content) must beEqualTo(s).await
+      bk1Compat
+        .get[StringDocument](id + 7)
+        .map(_.content) must throwA[TranscodingException].await
     }
 
     "8. set CompatString get JsonString fail if use LegacyStringTranscoder (default)" in {
