@@ -1,8 +1,6 @@
 lazy val commonSettings = Seq(
-  version := "7.4.5",
   scalaVersion := "2.12.14",
   crossScalaVersions := Seq("2.11.12", "2.12.14"),
-  organization := "com.sandinh",
 
   scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-feature", "-target:jvm-1.8"),
   scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
@@ -10,16 +8,14 @@ lazy val commonSettings = Seq(
     case _ => Nil
   }),
   updateOptions := updateOptions.value.withGigahorse(false)
-) ++ MySonatype.settings
-
-ThisBuild / versionScheme := Some("early-semver")
+)
 
 val playVersion = "2.6.17"
 val playJsonVersion = "2.6.9"
 
 val specs2 = "org.specs2"        %% "specs2-core"  % "4.0.1" % Test
 
-lazy val core = (project in file("core"))
+lazy val core = project
   .settings(commonSettings ++ Seq(
     name := "couchbase-scala",
     libraryDependencies ++= specs2 +: Seq(
@@ -31,7 +27,7 @@ lazy val core = (project in file("core"))
     )
   ))
 
-lazy val play = (project in file("play"))
+lazy val play = project
   .settings(commonSettings ++ Seq(
     name := "couchbase-play",
     libraryDependencies ++= specs2 +: Seq(
@@ -43,5 +39,31 @@ lazy val play = (project in file("play"))
 lazy val `couchbase-scala-root` = (project in file("."))
   .settings(commonSettings)
   .settings(
-    packagedArtifacts := Map.empty
+    publish / skip := true,
   ).aggregate(play, core)
+
+inThisBuild(
+  Seq(
+    versionScheme := Some("semver-spec"),
+    developers := List(
+      Developer(
+        "thanhbv",
+        "Bui Viet Thanh",
+        "thanhbv@sandinh.net",
+        url("https://sandinh.com")
+      ),
+      Developer(
+        "vinhbt",
+        "Bui The Vinh",
+        "vinhbt@sandinh.net",
+        url("https://sandinh.com")
+      ),
+      Developer(
+        "thanhpv",
+        "Phan Van Thanh",
+        "thanhpv@sandinh.net",
+        url("https://sandinh.com")
+      ),
+    ),
+  )
+)
