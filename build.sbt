@@ -1,6 +1,6 @@
 lazy val commonSettings = Seq(
-  scalaVersion := "2.12.14",
-  crossScalaVersions := Seq("2.11.12", "2.12.14"),
+  scalaVersion := "2.12.15",
+  crossScalaVersions := Seq("2.11.12", "2.12.15"),
 
   scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-feature", "-target:jvm-1.8"),
   scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
