@@ -13,7 +13,7 @@ class JsCodecSpec extends GuiceSpecBase {
   val key = "test_key"
 
   def jsGet = cb.bk1.getJsT[Trophy](key) must beEqualTo(Trophy.t1).await
-  implicit val JsonDoc = classOf[JsonDocument]
+  implicit val JsonDoc: Class[JsonDocument] = classOf[JsonDocument]
   def jsonGet = cb.bk1
     .getT[JsonObject](key)
     .map(json => Json.parse(json.toString).as[Trophy]) must beEqualTo(
