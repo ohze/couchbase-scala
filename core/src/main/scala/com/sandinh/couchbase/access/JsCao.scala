@@ -10,12 +10,17 @@ import com.sandinh.couchbase.Implicits._
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-/** Base class for Couchbase Access Object to access json documents that can be decode/encode to/from the `T` type */
-abstract class JsCao[T: Format](bucket: ScalaBucket)
-    extends CaoBase[T, JsValue, JsDocument](bucket) {
+trait JsCaoTrait[T] {
+  private[access] def bucket: ScalaBucket
+  private[access] implicit def fmt: Format[T]
+
+  /** Implement [[com.sandinh.couchbase.access.CaoBase.reads]] */
   protected def reads(u: JsValue): T = u.as[T]
+
+  /** Implement [[com.sandinh.couchbase.access.CaoBase.writes]] */
   protected def writes(t: T): JsValue = Json.toJson(t)
 
+  /** Implement [[com.sandinh.couchbase.access.CaoBase.createDoc]] */
   protected def createDoc(
     id: String,
     expiry: Int,
@@ -51,12 +56,25 @@ abstract class JsCao[T: Format](bucket: ScalaBucket)
     query1(n1ql, null, params: _*)
 }
 
+/** Base class for Couchbase Access Object to access json documents that can be decode/encode to/from the `T` type */
+class JsCao[T](
+  private[access] val bucket: ScalaBucket
+)(
+  private[access] implicit val fmt: Format[T]
+) extends CaoBase[T, JsValue, JsDocument](bucket)
+    with JsCaoTrait[T]
+
 /** Base class for Couchbase Access Object to access json documents that can be decode/encode to/from the `T` type - which is
   * store in couchbase at key generated from the T.key(A) method
   */
-abstract class JsCao1[T: Format, A](bucket: ScalaBucket)
-    extends JsCao[T](bucket)
-    with WithCaoKey1[T, A, JsValue, JsDocument]
+abstract class JsCao1[T, A](
+  private[access] val bucket: ScalaBucket
+)(
+  private[access] implicit val fmt: Format[T]
+) extends JsCaoTrait[T]
+    with WithCaoKey1[T, A, JsValue, JsDocument] {
+  private[access] override def self = new JsCao(bucket)
+}
 
 /** Base class for Couchbase Access Object to access json documents that can be decode/encode to/from the `T` type - which is
   * store in couchbase at key generated from the T.key(A, B) method
