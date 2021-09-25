@@ -1,7 +1,15 @@
 ## Changelog
-we use [Semantic Versioning](http://semver.org/)
+We use [Semantic Versioning](http://semver.org/)
+
+Backward binary compatibility is ensured by [mima](https://github.com/lightbend/mima)
+
+See also [mima-filters](core/src/main/mima-filters)
+
+##### v7.4.5
+TODO @thanhpv
+
 ##### v7.4.4
-+ Support Concurrent Document Mutations: [https://docs.couchbase.com/java-sdk/2.7/concurrent-mutations-cluster.html](https://docs.couchbase.com/java-sdk/2.7/concurrent-mutations-cluster.html)
++ Support [Concurrent Document Mutations](https://docs.couchbase.com/java-sdk/2.7/concurrent-mutations-cluster.html)
 + Use CAS value
 
 
@@ -52,7 +60,7 @@ we use [Semantic Versioning](http://semver.org/)
   - `openBucket` now return `Future[ScalaBucket]` instead of `ScalaBucket`.
   - Add `openBucketSync` - which is the old synchronous `openBucket` method.
     @note You should never perform long-running blocking operations inside of an asynchronous stream (e.g. inside of maps or flatMaps).
-    @see https://issues.couchbase.com/browse/JVMCBC-79
+    @see [JVMCBC-79](https://issues.couchbase.com/browse/JVMCBC-79)
   - Similar for `disconnect` (now return `Future[lang.Boolean]`) & `disconnectSync`
 
 ##### v7.3.1

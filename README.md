@@ -83,31 +83,19 @@ or, if you have prepared before => only run `docker start cb`
 test
 ```
 
-## publish checklist
-+ should add unit test
-+ should change [[build.sbt]] / version after publishing
-+ MUST change [[build.sbt]] / version when your commit introduce a new break change (increase the minor number)
-+ MUST tag the publishing git commit
-+ MUST push to github (push tag too)
-+ MUST run `sbt clean +test`
-  (`+test` to test against all crossScalaVersions in [[build.sbt]])
-+ if you publish from sbtshell in IDEA or from an already running sbt shell then
-  MUST run the following tasks:
-```sbtshell
-reload
-clean
-+test
-```
+## publish guide
+We use [sd-devops](/ohze/sd-devops) so:
++ Every push (or merge a PR) to `master` branch will be publish to sonatype snapshots
+  (only if [QA, test, compatible check](.github/workflows/sd-devops.yml) pass)
++ If push tag match glob `v[0-9]*`, ex `v9.0.0` or even `v9bla.bla`
+  then [publish job](.github/workflows/sd-devops.yml) will publish a release version to sonatype release repo
+  (which will be sync to maven central)
++ **!!!NOTE!!!** You MUST tag version with **v** prefix or else it will not be published!
++ You should never manually publish from your local machine unless `sbt publishLocal`
 + MUST update [CHANGES.md]!
-
-+ after that, [publish by](https://github.com/xerial/sbt-sonatype#publishing-your-artifact):
-```sbtshell
-+publishSigned
-sonatypeBundleRelease
-```
 
 ## Licence
 This software is licensed under the Apache 2 license:
 http://www.apache.org/licenses/LICENSE-2.0
 
-Copyright 2014-2017 Sân Đình (http://sandinh.com)
+Copyright 2014-2021 Sân Đình (https://sandinh.com)
