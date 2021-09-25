@@ -10,7 +10,7 @@ class JCBC_642Spec extends GuiceSpecBase {
 
   "CBCluster" should {
     "pass JCBC-642" in {
-      cfg must_!= null
+      cfg must !==(null)
       println("load config from: " + cfg.origin().description())
       val cfgFile = {
         val loader = classOf[JCBC_642Spec].getClassLoader
@@ -23,7 +23,7 @@ class JCBC_642Spec extends GuiceSpecBase {
         .upsert(doc)
         .flatMap { d => cb.bk2.upsert(d) }
         .map(_.content) must beEqualTo(content).await
-      cfg must_!= null
+      cfg must !==(null)
     }
   }
 }

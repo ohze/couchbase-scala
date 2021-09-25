@@ -13,7 +13,7 @@ import scala.concurrent.Future
 trait GuiceSpecBase extends Specification {
   implicit val ee: ExecutionEnv = Env().setTimeout(5.seconds).executionEnv
   implicit class CustomFutureMatchable[T](m: Matcher[T]) {
-    def await: Matcher[Future[T]] = new FutureMatchable(m).await(0, 5.seconds)
+    def await: Matcher[Future[T]] = m.awaitFor(5.seconds)
   }
   @Inject private[this] var _cb: CB = null
   protected def cb = _cb
