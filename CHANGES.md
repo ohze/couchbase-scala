@@ -5,6 +5,25 @@ we use [Semantic Versioning](http://semver.org/)
 + Use CAS value
 
 
+##### 8.1.0
++ break change! rename CaoBase.setTWithId -> setWithIdT
++ add WithCaoKey1.getOrUpdate convenient method
++ change back to normal `version := `, don't use sbt-git versioning
+
+##### 8.0.0-1-g0a620a6
++ update play 2.8.0
+
+##### 8.0.0
++ break changes:
+  - rename CaoBase get/set/update/remove methods by adding `WithId` suffix
++ drop scala 2.11 & add 2.13
++ update play 2.8.0-RC5
++ update couchbase java-client 2.7.11
++ update typesafe config 1.4.0 //same as dependency of akka-actor:2.6.0
++ use scala-collection-compat
++ update sbt 1.3.4 & some sbt plugins
++ use sbt-git for versioning
+
 ##### v7.4.2
 + update couchbase java-client 2.6.0, play-json 2.6.9 (latest, corresponding with play 2.6.17)
 + cross compile for scala 2.12.6, 2.11.12
