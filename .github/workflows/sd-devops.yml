@@ -6,7 +6,6 @@ jobs:
     strategy:
       matrix:
         java: [ '8', '11' ]
-        scala: [ '2.11.12', '2.12.15' ]
         couchbase: [ '4.6.5', '5.0.1' ]
     steps:
       - uses: actions/checkout@v2
@@ -15,7 +14,7 @@ jobs:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
       - uses: coursier/cache-action@v6
-      - run: sbt ++${{ matrix.scala }} sdQA
+      - run: sbt sdQA
       - run: |
           docker run -d \
             --ulimit nofile=40960:40960 \
@@ -32,7 +31,7 @@ jobs:
 
         working-directory: .
         shell: bash
-      - run: sbt ++${{ matrix.scala }} test
+      - run: sbt test
       # https://www.scala-sbt.org/1.x/docs/GitHub-Actions-with-sbt.html#Caching
       - run: |
           rm -rf "$HOME/.ivy2/local" || true
