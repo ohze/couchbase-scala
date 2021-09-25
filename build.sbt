@@ -22,6 +22,12 @@ lazy val scalacSetting = scalacOptions ++=
       case _      => Nil
     })
 
+lazy val mimaSetting =
+  mimaPreviousArtifacts := (scalaBinaryVersion.value match {
+    case "2.11" | "2.12" => Set(organization.value %% name.value % "7.4.5")
+    case _ => Set.empty // TODO update after releasing first version
+  })
+
 lazy val `couchbase-scala` = projectMatrix
   .in(file("core"))
   .jvmPlatform(
@@ -37,6 +43,7 @@ lazy val `couchbase-scala` = projectMatrix
         "com.google.inject" % "guice" % "4.2.0" % Test,
         "org.specs2" %% "specs2-core" % specs2Version.value % Test,
       ),
+      mimaSetting,
     )
   )
 
@@ -67,11 +74,12 @@ lazy val `couchbase-play` = projectMatrix
       moduleName := name.value,
     ),
   )
-  .settings(scalacSetting, playDeps)
+  .settings(scalacSetting, playDeps, mimaSetting)
   .dependsOn(`couchbase-scala`)
 
 // only aggregating project
 lazy val `couchbase-scala-root` = (project in file("."))
+  .disablePlugins(MimaPlugin)
   .settings(
     publish / skip := true,
     publishLocal / skip := true,
