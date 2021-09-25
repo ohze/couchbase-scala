@@ -23,6 +23,7 @@ lazy val core = project
       libraryDependencies ++= specs2 +: Seq(
         "com.couchbase.client" % "java-client" % "2.7.20",
         "javax.inject" % "javax.inject" % "1",
+        "org.scala-lang.modules" %% "scala-collection-compat" % "2.5.0",
         "com.typesafe.play" %% "play-json" % playJsonVersion,
         "com.typesafe" % "config" % "1.3.3",
         "com.google.inject" % "guice" % "4.2.0" % Test

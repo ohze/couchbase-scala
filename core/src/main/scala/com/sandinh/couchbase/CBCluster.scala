@@ -10,7 +10,7 @@ import com.couchbase.client.java.transcoder.Transcoder
 import com.sandinh.couchbase.transcoder._
 import com.typesafe.config.Config
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.concurrent.{Await, Future}
 import scala.util.Try
 import com.sandinh.couchbase.JavaConverters._
