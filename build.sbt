@@ -1,8 +1,3 @@
-val scala211 = "2.11.12"
-val scala212 = "2.12.15"
-val scala213 = "2.13.6"
-val scala3 = "3.0.2"
-
 val specs2Version = scalaBinaryVersion {
   case "2.11" => "4.10.6"
   case "3"    => "5.0.0-RC-11"
@@ -13,14 +8,6 @@ val playJsonVersion = scalaBinaryVersion {
   case "2.11" | "2.12" => "2.6.9"
   case _               => "2.10.0-RC5"
 }
-
-lazy val scalacSetting = scalacOptions ++=
-  Seq("-encoding", "UTF-8", "-deprecation", "-feature") ++
-    (scalaBinaryVersion.value match {
-      case "2.11" => Seq("-target:jvm-1.8", "-Ybackend:GenBCode")
-      case "2.12" => Seq("-target:jvm-1.8")
-      case _      => Nil
-    })
 
 lazy val mimaSetting =
   mimaPreviousArtifacts := (scalaBinaryVersion.value match {
@@ -33,7 +20,6 @@ lazy val `couchbase-scala` = projectMatrix
   .jvmPlatform(
     scalaVersions = Seq(scala211, scala212, scala213, scala3),
     settings = Seq(
-      scalacSetting,
       libraryDependencies ++= Seq(
         "com.couchbase.client" % "java-client" % "2.7.20",
         "javax.inject" % "javax.inject" % "1",
@@ -74,16 +60,13 @@ lazy val `couchbase-play` = projectMatrix
       moduleName := name.value,
     ),
   )
-  .settings(scalacSetting, playDeps, mimaSetting)
+  .settings(playDeps, mimaSetting)
   .dependsOn(`couchbase-scala`)
 
 // only aggregating project
 lazy val `couchbase-scala-root` = (project in file("."))
   .disablePlugins(MimaPlugin)
-  .settings(
-    publish / skip := true,
-    publishLocal / skip := true,
-  )
+  .settings(skipPublish)
   .aggregate(`couchbase-play`.projectRefs ++ `couchbase-scala`.projectRefs: _*)
 
 inThisBuild(
