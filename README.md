@@ -1,7 +1,7 @@
 couchbase-scala
 ===============
 
-[![CI](https://github.com/ohze/couchbase-scala/actions/workflows/sd-devops.yml/badge.svg)](https://github.com/ohze/couchbase-scala/actions/workflows/sd-devops.yml)
+[![CI](https://github.com/ohze/couchbase-scala/actions/workflows/sbt-devops.yml/badge.svg)](https://github.com/ohze/couchbase-scala/actions/workflows/sbt-devops.yml)
 
 This is a library for accessing Couchbase in Scala.
 

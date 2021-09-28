@@ -1,11 +1,12 @@
-name: sd-devops
+# @see https://github.com/ohze/sbt-devops/blob/main/files/sbt-devops.yml
+name: sbt-devops
 on: [push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-18.04
     strategy:
       matrix:
-        java: [ '8', '11' ]
+        java: [ '8', '11', '17' ]
         couchbase: [ '4.6.5', '5.0.1' ]
     steps:
       - uses: actions/checkout@v2
@@ -14,7 +15,7 @@ jobs:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
       - uses: coursier/cache-action@v6
-      - run: sbt sdQA mimaReportBinaryIssues
+      - run: sbt devopsQA mimaReportBinaryIssues
       - run: |
           docker run -d \
             --ulimit nofile=40960:40960 \
@@ -72,7 +73,7 @@ jobs:
           #CI_SONATYPE_RELEASE: 'sonatypeBundleRelease'
           #CI_SNAPSHOT_RELEASE: '+publish'
 
-  mattermost:
+  notify:
     needs: [build, publish]
     if: always()
     runs-on: ubuntu-latest
@@ -81,12 +82,14 @@ jobs:
         with:
           fetch-depth: 0
       - uses: coursier/cache-action@v6
-      - run: sbt sdMmNotify
+      - run: sbt devopsNotify
         env:
-          SD_MM_NEEDS: ${{ toJSON(needs) }}
+          # You can use `DEVOPS_` | `SLACK_` prefix for `MATTERMOST_*` envs below
+          # ex SLACK_WEBHOOK_URL instead of MATTERMOST_WEBHOOK_URL
           MATTERMOST_WEBHOOK_URL: ${{ secrets.MATTERMOST_WEBHOOK_URL }}
           # optional. See https://developers.mattermost.com/integrate/incoming-webhooks/#parameters
-          #MATTERMOST_PRETEXT: Message shown above the CI status attachment, ex to mention some user. Default empty.
           #MATTERMOST_ICON: icon_url or icon_emoji
           #MATTERMOST_CHANNEL: use default of the webhook if not set
           #MATTERMOST_USERNAME: use default of the webhook if not set
+          #MATTERMOST_PRETEXT: Message shown above the CI status attachment, ex to mention some user. Default empty.
+          _DEVOPS_NEEDS: ${{ toJSON(needs) }}
