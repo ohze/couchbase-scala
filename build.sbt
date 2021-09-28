@@ -3,16 +3,23 @@ val specs2Version = scalaBinaryVersion {
   case "3"    => "5.0.0-RC-11"
   case _      => "4.12.12"
 }
+val specs2 = specs2Version("org.specs2" %% "specs2-core" % _ % Test)
 
 val playJsonVersion = scalaBinaryVersion {
-  case "2.11" | "2.12" => "2.6.9"
+  case "2.11" | "2.12" => "2.6.14"
   case _               => "2.10.0-RC5"
+}
+
+val configVersion = scalaBinaryVersion {
+  case "2.11" | "2.12" => "1.3.4"
+  case _               => "1.4.1"
 }
 
 lazy val mimaSetting =
   mimaPreviousArtifacts := (scalaBinaryVersion.value match {
     case "2.11" | "2.12" => Set(organization.value %% name.value % "7.4.5")
     case _ => Set.empty // TODO update after releasing first version
+    // Set(organization.value %% moduleName.value % "9.0.0")
   })
 
 lazy val `couchbase-scala` = projectMatrix
@@ -25,42 +32,43 @@ lazy val `couchbase-scala` = projectMatrix
         "javax.inject" % "javax.inject" % "1",
         "org.scala-lang.modules" %% "scala-collection-compat" % "2.5.0",
         "com.typesafe.play" %% "play-json" % playJsonVersion.value,
-        "com.typesafe" % "config" % "1.3.3",
-        "com.google.inject" % "guice" % "4.2.0" % Test,
-        "org.specs2" %% "specs2-core" % specs2Version.value % Test,
+        "com.typesafe" % "config" % configVersion.value,
+        "com.google.inject" % "guice" % "4.2.3" % Test,
+        specs2.value,
       ),
       mimaSetting,
     )
   )
 
-lazy val play26 = ConfigAxis("_2_6", "-play2.6")
-lazy val play28 = ConfigAxis("_2_8", "-play2.8")
-lazy val playVersion = settingKey[String]("playVersion")
-lazy val playDeps = libraryDependencies ++= Seq(
-  "com.typesafe.play" %% "play" % playVersion.value,
-  "com.typesafe.play" %% "play-guice" % playVersion.value,
-  "org.specs2" %% "specs2-core" % specs2Version.value % Test,
-)
+import PlayAxis._, VirtualAxis.jvm
 
 lazy val `couchbase-play` = projectMatrix
   .in(file("play"))
   .customRow(
     scalaVersions = Seq(scala211, scala212),
-    axisValues = Seq(play26, VirtualAxis.jvm),
+    axisValues = Seq(play26, jvm),
     settings = Seq(
-      playVersion := "2.6.17",
       moduleName := name.value + "_2_6",
+      libraryDependencies ++= play26.deps :+ specs2.value,
+    ),
+  )
+  .customRow(
+    scalaVersions = Seq(scala211, scala212, scala213),
+    axisValues = Seq(play27, jvm),
+    settings = Seq(
+      moduleName := name.value + "_2_7",
+      libraryDependencies ++= play27.deps :+ specs2.value,
     ),
   )
   .customRow(
     scalaVersions = Seq(scala212, scala213),
-    axisValues = Seq(play28, VirtualAxis.jvm),
+    axisValues = Seq(play28, jvm),
     settings = Seq(
-      playVersion := "2.8.8",
       moduleName := name.value,
+      libraryDependencies ++= play28.deps :+ specs2.value,
     ),
   )
-  .settings(playDeps, mimaSetting)
+  .settings(mimaSetting)
   .dependsOn(`couchbase-scala`)
 
 // only aggregating project
