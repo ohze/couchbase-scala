@@ -12,10 +12,13 @@ import com.typesafe.config.Config
 import scala.concurrent.Future
 
 @Singleton
-class PlayCBCluster @Inject() (cfg: Config, lifecycle: ApplicationLifecycle) extends CBCluster(cfg) {
+class PlayCBCluster @Inject() (cfg: Config, lifecycle: ApplicationLifecycle)
+    extends CBCluster(cfg) {
+
   /** convention val for using with play.api.inject.ApplicationLifecycle#addStopHook */
   val disconnectFuture: () => Future[lang.Boolean] = () =>
-    asJava.disconnect()
+    asJava
+      .disconnect()
       .timeout(env.disconnectTimeout, MILLISECONDS)
       .toFuture
 

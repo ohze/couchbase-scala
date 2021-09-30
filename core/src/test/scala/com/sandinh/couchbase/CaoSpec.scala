@@ -9,7 +9,9 @@ class CaoSpec extends GuiceSpecBase {
   val username = "giabao"
   "Cao" should {
     "success set & get" in {
-      trophyCao.set(username, Trophy.t1).map(_.content.as[Trophy]) must beEqualTo(Trophy.t1).await
+      trophyCao
+        .set(username, Trophy.t1)
+        .map(_.content.as[Trophy]) must beEqualTo(Trophy.t1).await
       trophyCao.get(username) must beEqualTo(Trophy.t1).await
     }
   }

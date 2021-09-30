@@ -1,0 +1,26 @@
+# * the type hierarchy of class com.sandinh.couchbase.access.JsCao1 is different in current version. Missing types {com.sandinh.couchbase.access.CaoBase,com.sandinh.couchbase.access.JsCao}
+ProblemFilters.exclude[MissingTypesProblem]("com.sandinh.couchbase.access.JsCao1")
+# * the type hierarchy of class com.sandinh.couchbase.access.StrCao1 is different in current version. Missing types {com.sandinh.couchbase.access.CaoBase,com.sandinh.couchbase.access.StrCao}
+ProblemFilters.exclude[MissingTypesProblem]("com.sandinh.couchbase.access.StrCao1")
+# * abstract method self()com.sandinh.couchbase.access.CaoBase in interface com.sandinh.couchbase.access.WithCaoKey1 is present only in current version
+ProblemFilters.exclude[ReversedMissingMethodProblem]("com.sandinh.couchbase.access.WithCaoKey1.self")
+# * abstract method reads(java.lang.Object)java.lang.Object in interface com.sandinh.couchbase.access.CaoTrait is inherited by class WithCaoKey1 in current version.
+ProblemFilters.exclude[InheritedNewAbstractMethodProblem]("com.sandinh.couchbase.access.WithCaoKey1.reads")
+# * abstract method writes(java.lang.Object)java.lang.Object in interface com.sandinh.couchbase.access.CaoTrait is inherited by class WithCaoKey1 in current version.
+ProblemFilters.exclude[InheritedNewAbstractMethodProblem]("com.sandinh.couchbase.access.WithCaoKey1.writes")
+# * abstract method createDoc(java.lang.String,Int,java.lang.Object,Long)com.couchbase.client.java.document.Document in interface com.sandinh.couchbase.access.CaoTrait is inherited by class WithCaoKey1 in current version.
+ProblemFilters.exclude[InheritedNewAbstractMethodProblem]("com.sandinh.couchbase.access.WithCaoKey1.createDoc")
+
+# Additional filters for scala 2.11
+# * method update(java.lang.Object,java.lang.Object,Long)scala.concurrent.Future in trait com.sandinh.couchbase.access.WithCaoKey1 is present only in current version
+ProblemFilters.exclude[ReversedMissingMethodProblem]("com.sandinh.couchbase.access.WithCaoKey1.update")
+# * synthetic method update$default$3()Long in trait com.sandinh.couchbase.access.WithCaoKey1 is present only in current version
+ProblemFilters.exclude[ReversedMissingMethodProblem]("com.sandinh.couchbase.access.WithCaoKey1.update$default$3")
+# * method expiry()Int in trait com.sandinh.couchbase.access.CaoTrait is inherited by class WithCaoKey1 in current version.
+ProblemFilters.exclude[InheritedNewAbstractMethodProblem]("com.sandinh.couchbase.access.WithCaoKey1.expiry")
+# * synthetic method createDoc$default$4()Long in trait com.sandinh.couchbase.access.CaoTrait is inherited by class WithCaoKey1 in current version.
+ProblemFilters.exclude[InheritedNewAbstractMethodProblem]("com.sandinh.couchbase.access.WithCaoKey1.createDoc$default$4")
+# * method update(java.lang.Object,java.lang.Object,Long)scala.concurrent.Future in trait com.sandinh.couchbase.access.CaoTrait is inherited by class WithCaoKey1 in current version.
+ProblemFilters.exclude[InheritedNewAbstractMethodProblem]("com.sandinh.couchbase.access.WithCaoKey1.update")
+# * synthetic method update$default$3()Long in trait com.sandinh.couchbase.access.CaoTrait is inherited by class WithCaoKey1 in current version.
+ProblemFilters.exclude[InheritedNewAbstractMethodProblem]("com.sandinh.couchbase.access.WithCaoKey1.update$default$3")

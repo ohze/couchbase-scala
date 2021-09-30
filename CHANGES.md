@@ -1,5 +1,30 @@
 ## Changelog
-we use [Semantic Versioning](http://semver.org/)
+We use [Semantic Versioning](http://semver.org/)
+
+Backward binary compatibility is ensured by [mima](https://github.com/lightbend/mima)
+
+See also [mima-filters](core/src/main/mima-filters)
+
+##### v9.0.0 (tobe released)
++ Break compatible with v8.x but binary compatible with v7.x.  
+  Some source change may need if you use JsCao1 or StrCao1 or WithCaoKey1  
+  But if compile success then binary compatibility are ensured.
++ Add support for scala 2.13 & scala3
+  - `couchbase-scala` is built against scala 2.11.12, 2.12.15, 2.13.6, 3.0.2
++ Add support for playframework 2.8
+  - `couchbase-play` for play 2.6 is renamed to `couchbase-play_2_6` and only support scala 2.11 & 2.12
+    for sbt: `libraryDependencies += "com.sandinh" %% "couchbase-play_2_6" % "9.0.0"`
+  - For play 2.8:
+    `libraryDependencies += "com.sandinh" %% "couchbase-play" % "9.0.0"`
+    Only support scala 2.12 & 2.13
+
+##### v7.4.5
+TODO @thanhpv
+
+##### v7.4.4
++ Support [Concurrent Document Mutations](https://docs.couchbase.com/java-sdk/2.7/concurrent-mutations-cluster.html)
++ Use CAS value
+
 
 ##### 8.1.0
 + break change! rename CaoBase.setTWithId -> setWithIdT
@@ -48,7 +73,7 @@ we use [Semantic Versioning](http://semver.org/)
   - `openBucket` now return `Future[ScalaBucket]` instead of `ScalaBucket`.
   - Add `openBucketSync` - which is the old synchronous `openBucket` method.
     @note You should never perform long-running blocking operations inside of an asynchronous stream (e.g. inside of maps or flatMaps).
-    @see https://issues.couchbase.com/browse/JVMCBC-79
+    @see [JVMCBC-79](https://issues.couchbase.com/browse/JVMCBC-79)
   - Similar for `disconnect` (now return `Future[lang.Boolean]`) & `disconnectSync`
 
 ##### v7.3.1

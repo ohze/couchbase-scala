@@ -19,7 +19,8 @@ object Implicits {
   object DocCls {
     implicit val BinDocCls: Class[BinaryDocument] = classOf[BinaryDocument]
     implicit val JsDocCls: Class[JsDocument] = classOf[JsDocument]
-    implicit val CompatStringDocCls: Class[CompatStringDocument] = classOf[CompatStringDocument]
+    implicit val CompatStringDocCls: Class[CompatStringDocument] =
+      classOf[CompatStringDocument]
     //  implicit val JsonDocCls = classOf[JsonDocument]
     //  implicit val JsonArrayDocCls = classOf[JsonArrayDocument]
     //  implicit val JsonBooleanDocCls = classOf[JsonArrayDocument]
@@ -28,7 +29,8 @@ object Implicits {
     ////  implicit val JsonStringDocCls = classOf[JsonStringDocument]
   }
 
-  implicit class RichAsyncViewResult(val underlying: AsyncViewResult) extends AnyVal {
+  implicit class RichAsyncViewResult(val underlying: AsyncViewResult)
+      extends AnyVal {
     def foldRows(row2Js: AsyncViewRow => JsValue): Future[JsArray] =
       underlying.rows
         .scMap(row2Js)
@@ -36,7 +38,9 @@ object Implicits {
         .scMap(JsArray(_))
         .toFuture
 
-    def flatFoldRows(row2Obs: AsyncViewRow => Observable[JsValue]): Future[JsArray] = {
+    def flatFoldRows(
+      row2Obs: AsyncViewRow => Observable[JsValue]
+    ): Future[JsArray] = {
       underlying.rows
         .scConcatMap(row2Obs)
         .fold(ListBuffer.empty[JsValue])(_ += _)
@@ -50,11 +54,13 @@ object Implicits {
       underlying.document(tag.runtimeClass.asInstanceOf[Class[D]])
   }
 
-  implicit class DocNotExistFuture[T](val underlying: Future[T]) extends AnyVal {
+  implicit class DocNotExistFuture[T](val underlying: Future[T])
+      extends AnyVal {
     def recoverNotExist[U >: T](default: => U): Future[U] =
       underlying.recover { case _: DocumentDoesNotExistException => default }
 
-    def optNotExist: Future[Option[T]] = underlying.map(Option(_)).recoverNotExist(None)
+    def optNotExist: Future[Option[T]] =
+      underlying.map(Option(_)).recoverNotExist(None)
   }
 
   implicit class RichJsonObject(val o: JsonObject) extends AnyVal {
@@ -70,7 +76,7 @@ object Implicits {
           case x: java.lang.Double  => m.put(key, JsNumber(BigDecimal(x)))
           case x: JsonObject        => m.put(key, x.toPlayJs)
           case x: JsonArray         => m.put(key, x.toPlayJs)
-          case _                    => //can NOT go here. see com.couchbase.client.java.document.json.JsonValue.checkType
+          case _ => //can NOT go here. see com.couchbase.client.java.document.json.JsonValue.checkType
         }
       JsObject(m)
     }
@@ -89,7 +95,7 @@ object Implicits {
           case x: java.lang.Double  => l += JsNumber(BigDecimal(x))
           case x: JsonObject        => l += x.toPlayJs
           case x: JsonArray         => l += x.toPlayJs
-          case _                    => //can NOT go here. see com.couchbase.client.java.document.json.JsonValue.checkType
+          case _ => //can NOT go here. see com.couchbase.client.java.document.json.JsonValue.checkType
         }
       JsArray(l)
     }

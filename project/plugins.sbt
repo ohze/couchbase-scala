@@ -1,2 +1,5 @@
-addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "3.8.1")
-addSbtPlugin("com.jsuereth" % "sbt-pgp" % "2.0.0")
+addSbtPlugin("com.sandinh" % "sd-devops-oss" % "4.0.1")
+
+addSbtPlugin("com.eed3si9n" % "sbt-projectmatrix" % "0.8.0")
+
+addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "1.0.0")
