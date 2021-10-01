@@ -36,13 +36,9 @@ trait WithCaoKey1[T, A, U, D <: Document[U]] extends CaoTrait[T, A, U, D] {
   protected def key(a: A): String
 
   final def get(a: A): Future[T] = self.get(key(a))
-  final def getOrElse(a: A)(default: => T): Future[T] =
-    self.getOrElse(key(a))(default)
   final def getBulk(aa: Seq[A]): Future[Seq[T]] = Future.traverse(aa)(get)
 
   final def getWithCAS(a: A): Future[(T, Long)] = self.getWithCAS(key(a))
-  final def getOrElseWithCAS(a: A)(default: => T): Future[DocumentCAS] =
-    self.getOrElseWithCAS(key(a))(default)
   final def getBulkWithCAS(aa: Seq[A]): Future[Seq[DocumentCAS]] =
     Future.traverse(aa)(getWithCAS)
 
@@ -54,8 +50,6 @@ trait WithCaoKey1[T, A, U, D <: Document[U]] extends CaoTrait[T, A, U, D] {
   final def updateWithCAS(a: A, t: T, cas: Long = 0): Future[D] =
     self.update(key(a), t, cas)
 
-  /** @inheritdoc */
-  final def setT(a: A, t: T): Future[T] = self.set(key(a), t).map(_ => t)
   final def setBulk(aa: Seq[A], tt: Seq[T]): Future[Seq[D]] =
     Future.traverse(aa zip tt) { case (a, t) =>
       set(a, t)

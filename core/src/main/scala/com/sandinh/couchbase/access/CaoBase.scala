@@ -46,24 +46,6 @@ abstract class CaoBase[T, U, D <: Document[U]: ClassTag](bucket: ScalaBucket)
   final def getWithCAS(id: String): Future[DocumentCAS] =
     bucket.get[D](id).map(d => (reads(d.content), d.cas()))
 
-  /** @param id document id */
-  // TODO make final
-  def getOrElse(id: String)(default: => T): Future[T] = get(id).recover {
-    case _: DocumentDoesNotExistException => default
-  }
-
-  /** @param id document id */
-  def getOrElseWithCAS(id: String)(default: => T): Future[DocumentCAS] =
-    getWithCAS(id).recover { case _: DocumentDoesNotExistException =>
-      (default, -1)
-    }
-
-  /** @param id document id */
-  // not override. see the comment in CaoTrait
-  def getOrUpdate(id: String)(default: => T): Future[T] = get(id).recoverWith {
-    case _: DocumentDoesNotExistException => setT(id, default)
-  }
-
   /** @param id document id
     * @param t the object of your own type `T` ex T=`case class User(...)`
     *          to be upsert into cb server
@@ -77,9 +59,6 @@ abstract class CaoBase[T, U, D <: Document[U]: ClassTag](bucket: ScalaBucket)
     */
   final def update(id: String, t: T, cas: Long = 0): Future[D] =
     bucket.replace(createDoc(id, expiry(), writes(t), cas))
-
-  /** @inheritdoc */
-  final def setT(id: String, t: T): Future[T] = set(id, t).map(_ => t)
 
   /** @param id document id */
   final def remove(id: String): Future[D] = bucket.remove[D](id)
@@ -103,23 +82,28 @@ private[access] trait CaoTrait[T, A, U, D <: Document[U]] {
 
   def get(a: A): Future[T]
   def getWithCAS(a: A): Future[(T, Long)]
-  def getOrElse(a: A)(default: => T): Future[T]
-  def getOrElseWithCAS(a: A)(default: => T): Future[DocumentCAS]
 
-  // Because WithCaoKey1 in couchbase-scala 7.4.5 don't have this method
-  // So, to prevent conflict and maybe not binary compatible case,
-  // ex `XxCao extends JsCao1[T, String]` which is a `WithCaoKey1T, A, ..]`
-  // with `type A = String`
-  // => we don't add this method here.
-  // TODO add this method later
-  // TODO implement some methods of this trait in this trait
-  //  instead of duplicating implementation in both CaoBase and WithCaoKey1
-  //def getOrUpdate(id: A)(default: => T): Future[T]
+  /** @param a document id or the param of WithCaoKey1.key(a: A) */
+  final def getOrElse(a: A)(default: => T): Future[T] = get(a).recover {
+    case _: DocumentDoesNotExistException => default
+  }
+
+  /** @param a document id or the param of WithCaoKey1.key(a: A) */
+  final def getOrElseWithCAS(a: A)(default: => T): Future[DocumentCAS] =
+    getWithCAS(a).recover { case _: DocumentDoesNotExistException =>
+      (default, -1)
+    }
+
+  /** @param a document id or the param of WithCaoKey1.key(a: A) */
+  final def getOrUpdate(a: A)(default: => T): Future[T] = get(a).recoverWith {
+    case _: DocumentDoesNotExistException => setT(a, default)
+  }
 
   def set(a: A, t: T): Future[D]
   def update(id: A, t: T, cas: Long = 0): Future[D]
 
   /** convenient method. = set(..).map(_ => t) */
-  def setT(a: A, t: T): Future[T]
+  final def setT(a: A, t: T): Future[T] = set(a, t).map(_ => t)
+
   def remove(a: A): Future[D]
 }
