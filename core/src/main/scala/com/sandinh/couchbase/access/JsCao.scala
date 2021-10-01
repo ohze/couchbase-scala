@@ -73,7 +73,7 @@ abstract class JsCao1[T, A](
   private[access] implicit val fmt: Format[T]
 ) extends JsCaoTrait[T]
     with WithCaoKey1[T, A, JsValue, JsDocument] {
-  private[access] override def self = new JsCao(bucket)
+  final override val self = new JsCao(bucket)
 }
 
 /** Base class for Couchbase Access Object to access json documents that can be decode/encode to/from the `T` type - which is

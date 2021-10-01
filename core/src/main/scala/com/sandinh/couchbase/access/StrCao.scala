@@ -28,7 +28,7 @@ abstract class StrCao1[T, A](
   private[access] val bucket: ScalaBucket
 ) extends StrCaoTrait[T]
     with WithCaoKey1[T, A, String, CompatStringDocument] {
-  private[access] override def self = new StrCao[T](bucket) {
+  final override val self = new StrCao[T](bucket) {
     protected def reads(u: String): T = StrCao1.this.reads(u)
     protected def writes(t: T): String = StrCao1.this.writes(t)
   }

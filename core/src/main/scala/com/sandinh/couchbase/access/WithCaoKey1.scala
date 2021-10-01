@@ -30,7 +30,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
   */
 private[access] trait WithCaoKey1[T, A, U, D <: Document[U]]
     extends CaoTrait[T, A, U, D] {
-  private[access] def self: CaoBase[T, U, D]
+  def self: CaoBase[T, U, D]
   protected def key(a: A): String
 
   final def get(a: A): Future[T] = self.get(key(a))
