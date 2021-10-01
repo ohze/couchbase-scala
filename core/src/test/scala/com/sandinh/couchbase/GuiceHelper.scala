@@ -9,6 +9,7 @@ import com.typesafe.config.{ConfigFactory, Config}
 import org.specs2.matcher.Matcher
 import org.specs2.mutable.Specification
 import scala.concurrent.Future
+import scala.language.implicitConversions
 
 trait GuiceSpecBase extends Specification {
   implicit val ee: ExecutionEnv = Env().setTimeout(5.seconds).executionEnv
