@@ -99,6 +99,13 @@ private[access] trait CaoTrait[T, A, U, D <: Document[U]] {
     case _: DocumentDoesNotExistException => setT(a, default)
   }
 
+  final def getBulk(aa: Seq[A]): Future[Seq[T]] = Future.traverse(aa)(get)
+  final def getBulkWithCAS(aa: Seq[A]): Future[Seq[DocumentCAS]] =
+    Future.traverse(aa)(getWithCAS)
+
+  final def setBulk(aa: Seq[A], tt: Seq[T]): Future[Seq[D]] =
+    Future.traverse(aa zip tt) { case (a, t) => set(a, t) }
+
   def set(a: A, t: T): Future[D]
   def update(id: A, t: T, cas: Long = 0): Future[D]
 
@@ -106,4 +113,22 @@ private[access] trait CaoTrait[T, A, U, D <: Document[U]] {
   final def setT(a: A, t: T): Future[T] = set(a, t).map(_ => t)
 
   def remove(a: A): Future[D]
+
+  final def change(a: A)(f: Option[T] => T): Future[D] = get(a)
+    .map(Option(_))
+    .recover { case _: DocumentDoesNotExistException => None }
+    .flatMap { o => set(a, f(o)) }
+
+  final def flatChange(a: A)(f: Option[T] => Future[T]): Future[D] = get(a)
+    .map(Option(_))
+    .recover { case _: DocumentDoesNotExistException => None }
+    .flatMap(f)
+    .flatMap(set(a, _))
+
+  final def changeBulk(aa: Seq[A])(f: Option[T] => T): Future[Seq[D]] =
+    Future.traverse(aa)(change(_)(f))
+
+  final def flatChangeBulk(aa: Seq[A])(
+    f: Option[T] => Future[T]
+  ): Future[Seq[D]] = Future.traverse(aa)(flatChange(_)(f))
 }
