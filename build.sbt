@@ -37,6 +37,7 @@ lazy val `couchbase-scala` = projectMatrix
         specs2.value,
       ),
       mimaSetting,
+      Compile / doc / scalacOptions -= "-Xfatal-warnings",
     )
   )
 
