@@ -24,3 +24,14 @@ ProblemFilters.exclude[InheritedNewAbstractMethodProblem]("com.sandinh.couchbase
 ProblemFilters.exclude[InheritedNewAbstractMethodProblem]("com.sandinh.couchbase.access.WithCaoKey1.update")
 # * synthetic method update$default$3()Long in trait com.sandinh.couchbase.access.CaoTrait is inherited by class WithCaoKey1 in current version.
 ProblemFilters.exclude[InheritedNewAbstractMethodProblem]("com.sandinh.couchbase.access.WithCaoKey1.update$default$3")
+
+# The following CaoBase's methods don't have compatible problems in scala
+# because CaoBase extends CaoTrait[_, A,..] with type A = String
+# * method getOrElse(java.lang.String,scala.Function0)scala.concurrent.Future in class com.sandinh.couchbase.access.CaoBase's type is different in current version, where it is (java.lang.Object,scala.Function0)scala.concurrent.Future instead of (java.lang.String,scala.Function0)scala.concurrent.Future
+ProblemFilters.exclude[IncompatibleMethTypeProblem]("com.sandinh.couchbase.access.CaoBase.getOrElse")
+# * method getOrElseWithCAS(java.lang.String,scala.Function0)scala.concurrent.Future in class com.sandinh.couchbase.access.CaoBase's type is different in current version, where it is (java.lang.Object,scala.Function0)scala.concurrent.Future instead of (java.lang.String,scala.Function0)scala.concurrent.Future
+ProblemFilters.exclude[IncompatibleMethTypeProblem]("com.sandinh.couchbase.access.CaoBase.getOrElseWithCAS")
+# * method getOrUpdate(java.lang.String,scala.Function0)scala.concurrent.Future in class com.sandinh.couchbase.access.CaoBase's type is different in current version, where it is (java.lang.Object,scala.Function0)scala.concurrent.Future instead of (java.lang.String,scala.Function0)scala.concurrent.Future
+ProblemFilters.exclude[IncompatibleMethTypeProblem]("com.sandinh.couchbase.access.CaoBase.getOrUpdate")
+# * method setT(java.lang.String,java.lang.Object)scala.concurrent.Future in class com.sandinh.couchbase.access.CaoBase's type is different in current version, where it is (java.lang.Object,java.lang.Object)scala.concurrent.Future instead of (java.lang.String,java.lang.Object)scala.concurrent.Future
+ProblemFilters.exclude[IncompatibleMethTypeProblem]("com.sandinh.couchbase.access.CaoBase.setT")
