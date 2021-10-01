@@ -28,10 +28,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
   *           (of course you can implement your own)
   * @tparam D the Document type
   */
-// internal TODO make this trait `private[access]`
 // TODO move some method impl, such as `setBulk`
 //  to `CaoTrait` trait to enrich CaoBase
-trait WithCaoKey1[T, A, U, D <: Document[U]] extends CaoTrait[T, A, U, D] {
+private[access] trait WithCaoKey1[T, A, U, D <: Document[U]]
+    extends CaoTrait[T, A, U, D] {
   private[access] def self: CaoBase[T, U, D]
   protected def key(a: A): String
 
