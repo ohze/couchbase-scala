@@ -5,8 +5,8 @@ import com.couchbase.client.java.error.DocumentDoesNotExistException
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-/** internal */
-trait WithCaoKey2[T, A, B, U, D <: Document[U]] { self: CaoBase[T, U, D] =>
+private[access] trait WithCaoKey2[T, A, B, U, D <: Document[U]] {
+  self: CaoBase[T, U, D] =>
 
   /** Map 2 param of type A, B to a CB key
     * @return CB key

@@ -40,35 +40,15 @@ lazy val `couchbase-scala` = projectMatrix
     )
   )
 
-import PlayAxis._, VirtualAxis.jvm
-
 lazy val `couchbase-play` = projectMatrix
   .in(file("play"))
-  .customRow(
-    scalaVersions = Seq(scala211, scala212),
-    axisValues = Seq(play26, jvm),
-    settings = Seq(
-      moduleName := name.value + "_2_6",
-      libraryDependencies ++= play26.deps :+ specs2.value,
-    ),
+  .playAxis(play26, Seq(scala211, scala212))
+  .playAxis(play27, Seq(scala211, scala212, scala213))
+  .playAxis(play28, Seq(scala212, scala213))
+  .settings(
+    mimaSetting,
+    libraryDependencies ++= play("play", "guice").value :+ specs2.value,
   )
-  .customRow(
-    scalaVersions = Seq(scala211, scala212, scala213),
-    axisValues = Seq(play27, jvm),
-    settings = Seq(
-      moduleName := name.value + "_2_7",
-      libraryDependencies ++= play27.deps :+ specs2.value,
-    ),
-  )
-  .customRow(
-    scalaVersions = Seq(scala212, scala213),
-    axisValues = Seq(play28, jvm),
-    settings = Seq(
-      moduleName := name.value,
-      libraryDependencies ++= play28.deps :+ specs2.value,
-    ),
-  )
-  .settings(mimaSetting)
   .dependsOn(`couchbase-scala`)
 
 // only aggregating project
@@ -103,20 +83,7 @@ inThisBuild(
   )
 )
 
-// opens java.base/java.lang for java 16+
-// to workaround error:
-// InaccessibleObjectException: Unable to make protected final java.lang.Class
-//  java.lang.ClassLoader.defineClass(java.lang.String,byte[],int,int,java.security.ProtectionDomain)
-//  throws java.lang.ClassFormatError accessible:
-//  module java.base does not "opens java.lang" to unnamed module @42a6eabd (ReflectUtils.java:61)
-lazy val javaVersion: Int = scala.sys
-  .props("java.specification.version")
-  .split('.')
-  .dropWhile(_ == "1")
-  .head
-  .toInt
-ThisBuild / Test / fork := javaVersion >= 16
-ThisBuild / Test / javaOptions := {
-  if (javaVersion < 16) Nil
-  else Seq("--add-opens", "java.base/java.lang=ALL-UNNAMED")
-}
+// In Test code: com.sandinh.couchbase.GuiceSpecBase.setup
+// We use Guice's injectMembers that inject value for the GuiceSpecBase's private var `_cb`
+// using reflection which is deny by default in java 16+
+inThisBuild(addOpensForTest())
