@@ -5,8 +5,8 @@ Backward binary compatibility is ensured by [mima](https://github.com/lightbend/
 
 See also [mima-filters](core/src/main/mima-filters)
 
-##### v9.0.0 (tobe released)
-+ Break compatible with v8.x but binary compatible with v7.x.  
+##### v9.0.0
++ Break compatible with v8.x but binary compatible with v7.x except [7.4.5.backward.excludes](core/src/main/mima-filters/7.4.5.backward.excludes)  
   Some source change may need if you use JsCao1 or StrCao1 or WithCaoKey1  
   But if compile success then binary compatibility are ensured.
 + Add support for scala 2.13 & scala3
@@ -17,6 +17,10 @@ See also [mima-filters](core/src/main/mima-filters)
   - For play 2.8:
     `libraryDependencies += "com.sandinh" %% "couchbase-play" % "9.0.0"`
     Only support scala 2.12 & 2.13
++ Incompatible dependencies change of couchbase-play_2_6 against couchbase-play:7.4.5:
+  - guava: 22.0 -> 23.6.1-jre
+  - ssl-config-core 0.2.2 -> 0.3.8
+  - scala-parser-combinators 1.0.6 -> 1.1.2
 
 ##### v7.4.5
 TODO @thanhpv
