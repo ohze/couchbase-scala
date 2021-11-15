@@ -18,8 +18,8 @@ lazy val mimaSetting = Seq(
     if (oldCompat.value) "7.4.5" else "9.0.0"
   ),
   versionPolicyPreviousVersions ++= {
-    if (oldCompat.value) Seq("7.4.5")
-    else Nil
+    if (oldCompat.value) Seq("7.4.5", "9.0.0")
+    else Seq("9.0.0")
   },
   mimaPreviousArtifacts := mimaPreviousArtifacts.value.map { m =>
     import coursier.version.Version

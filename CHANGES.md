@@ -5,6 +5,12 @@ Backward binary compatibility is ensured by [mima](https://github.com/lightbend/
 
 See also [mima-filters](core/src/main/mima-filters)
 
+##### v9.2.0
++ Compatible with 9.0.0 except [9.0.0.backward.excludes](core/src/main/mima-filters/9.0.0.backward.excludes)
++ Update com.couchbase.client:java-client:2.7.20 -> 2.7.22
++ Update scala-collection-compat:2.5.0 -> 2.6.0
++ (scala3) Update scala 3.0.2 -> 3.1.0
+
 ##### v9.0.0
 + Break compatible with v8.x but binary compatible with v7.x except [7.4.5.backward.excludes](core/src/main/mima-filters/7.4.5.backward.excludes)  
   Some source change may need if you use JsCao1 or StrCao1 or WithCaoKey1  
