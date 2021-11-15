@@ -35,7 +35,7 @@ lazy val `couchbase-scala` = projectMatrix
     libraryDependencies ++= Seq(
       "com.couchbase.client" % "java-client" % "2.7.22",
       "javax.inject" % "javax.inject" % "1",
-      "org.scala-lang.modules" %% "scala-collection-compat" % "2.5.0",
+      "org.scala-lang.modules" %% "scala-collection-compat" % "2.6.0",
       "com.typesafe.play" %% "play-json" % playJsonVersion.value,
       "com.typesafe" % "config" % configVersion.value,
       "com.google.inject" % "guice" % "4.2.3" % Test,
