@@ -1,0 +1,32 @@
+# The following methods of CaoBase is moved to `CaoTrait` which is a super trait of CaoBase
+
+# * method getOrElse(java.lang.String,scala.Function0)scala.concurrent.Future in class com.sandinh.couchbase.access.CaoBase does not have a correspondent in current version
+ProblemFilters.exclude[DirectMissingMethodProblem]("com.sandinh.couchbase.access.CaoBase.getOrElse")
+# * method getOrElseWithCAS(java.lang.String,scala.Function0)scala.concurrent.Future in class com.sandinh.couchbase.access.CaoBase does not have a correspondent in current version
+ProblemFilters.exclude[DirectMissingMethodProblem]("com.sandinh.couchbase.access.CaoBase.getOrElseWithCAS")
+# * method getOrUpdate(java.lang.String,scala.Function0)scala.concurrent.Future in class com.sandinh.couchbase.access.CaoBase's type is different in current version, where it is (java.lang.Object,scala.Function0)scala.concurrent.Future instead of (java.lang.String,scala.Function0)scala.concurrent.Future
+ProblemFilters.exclude[IncompatibleMethTypeProblem]("com.sandinh.couchbase.access.CaoBase.getOrUpdate")
+# * method setT(java.lang.String,java.lang.Object)scala.concurrent.Future in class com.sandinh.couchbase.access.CaoBase does not have a correspondent in current version
+ProblemFilters.exclude[DirectMissingMethodProblem]("com.sandinh.couchbase.access.CaoBase.setT")
+
+#
+# * in current version, classes mixing com.sandinh.couchbase.access.WithCaoKey1 need be recompiled to wire to the new static mixin forwarder method all super calls to method getOrElse(java.lang.Object,scala.Function0)scala.concurrent.Future
+ProblemFilters.exclude[NewMixinForwarderProblem]("com.sandinh.couchbase.access.WithCaoKey1.getOrElse")
+# * in current version, classes mixing com.sandinh.couchbase.access.WithCaoKey1 need be recompiled to wire to the new static mixin forwarder method all super calls to method getBulk(scala.collection.immutable.Seq)scala.concurrent.Future
+ProblemFilters.exclude[NewMixinForwarderProblem]("com.sandinh.couchbase.access.WithCaoKey1.getBulk")
+# * in current version, classes mixing com.sandinh.couchbase.access.WithCaoKey1 need be recompiled to wire to the new static mixin forwarder method all super calls to method getOrElseWithCAS(java.lang.Object,scala.Function0)scala.concurrent.Future
+ProblemFilters.exclude[NewMixinForwarderProblem]("com.sandinh.couchbase.access.WithCaoKey1.getOrElseWithCAS")
+# * in current version, classes mixing com.sandinh.couchbase.access.WithCaoKey1 need be recompiled to wire to the new static mixin forwarder method all super calls to method getBulkWithCAS(scala.collection.immutable.Seq)scala.concurrent.Future
+ProblemFilters.exclude[NewMixinForwarderProblem]("com.sandinh.couchbase.access.WithCaoKey1.getBulkWithCAS")
+# * in current version, classes mixing com.sandinh.couchbase.access.WithCaoKey1 need be recompiled to wire to the new static mixin forwarder method all super calls to method setT(java.lang.Object,java.lang.Object)scala.concurrent.Future
+ProblemFilters.exclude[NewMixinForwarderProblem]("com.sandinh.couchbase.access.WithCaoKey1.setT")
+# * in current version, classes mixing com.sandinh.couchbase.access.WithCaoKey1 need be recompiled to wire to the new static mixin forwarder method all super calls to method setBulk(scala.collection.immutable.Seq,scala.collection.immutable.Seq)scala.concurrent.Future
+ProblemFilters.exclude[NewMixinForwarderProblem]("com.sandinh.couchbase.access.WithCaoKey1.setBulk")
+# * in current version, classes mixing com.sandinh.couchbase.access.WithCaoKey1 need be recompiled to wire to the new static mixin forwarder method all super calls to method change(java.lang.Object,scala.Function1)scala.concurrent.Future
+ProblemFilters.exclude[NewMixinForwarderProblem]("com.sandinh.couchbase.access.WithCaoKey1.change")
+# * in current version, classes mixing com.sandinh.couchbase.access.WithCaoKey1 need be recompiled to wire to the new static mixin forwarder method all super calls to method flatChange(java.lang.Object,scala.Function1)scala.concurrent.Future
+ProblemFilters.exclude[NewMixinForwarderProblem]("com.sandinh.couchbase.access.WithCaoKey1.flatChange")
+# * in current version, classes mixing com.sandinh.couchbase.access.WithCaoKey1 need be recompiled to wire to the new static mixin forwarder method all super calls to method changeBulk(scala.collection.immutable.Seq,scala.Function1)scala.concurrent.Future
+ProblemFilters.exclude[NewMixinForwarderProblem]("com.sandinh.couchbase.access.WithCaoKey1.changeBulk")
+# * in current version, classes mixing com.sandinh.couchbase.access.WithCaoKey1 need be recompiled to wire to the new static mixin forwarder method all super calls to method flatChangeBulk(scala.collection.immutable.Seq,scala.Function1)scala.concurrent.Future
+ProblemFilters.exclude[NewMixinForwarderProblem]("com.sandinh.couchbase.access.WithCaoKey1.flatChangeBulk")
