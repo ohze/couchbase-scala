@@ -20,22 +20,9 @@ jobs:
           distribution: 'temurin'
       - uses: coursier/cache-action@v6
       - run: sbt devopsQA
-      - run: |
-          docker run -d \
-            --ulimit nofile=40960:40960 \
-            --ulimit core=100000000:100000000 \
-            --ulimit memlock=100000000:100000000 \
-            --name cb \
-            --net=host \
-            -v `pwd`/cb-test-prepare.sh:/cb-test-prepare.sh \
-            couchbase:enterprise-${{ matrix.couchbase }}
-
-          for i in {1..5}; do
-            docker exec cb /cb-test-prepare.sh && break || sleep 8;
-          done
-
-        working-directory: .
-        shell: bash
+      - run: ./run-cb-test-container.sh
+        env:
+          CB_VERSION: ${{ matrix.couchbase }}
       - run: sbt test
       # https://www.scala-sbt.org/1.x/docs/GitHub-Actions-with-sbt.html#Caching
       - run: |
