@@ -40,8 +40,11 @@ lazy val `couchbase-play` = projectMatrix
     _.dependsOn(`couchbase-scala`.finder(config14)(scala213))
   )
   .settings(
-    libraryDependencies ++=
-      play("play", "guice").value ++ specs2("-core").value,
+    libraryDependencies ++= play("play", "guice").value ++
+      specs2("-core").value ++
+      Seq(
+        "ch.qos.logback" % "logback-classic" % "1.2.7" % Test,
+      ),
   )
 
 // only aggregating project
