@@ -27,6 +27,7 @@ See also [mima-filters](core/src/main/mima-filters)
 + Use `implicit ec: ExecutionContext` param instead of `ExecutionContext.Implicits.global` in:
   - `CBBucket.{getJsT, getT}`
 + Remove the deprecated `CBCluster.getOrElseT`
++ Remove `StrCao, StrCao1, StrCao2, WithCaoKey1, WithCaoKey2, rx.Implicits, document.*, transcoder.*`
 
 ##### v9.2.0
 + Compatible with 9.0.0 except [9.0.0.backward.excludes](core/src/main/mima-filters/9.0.0.backward.excludes)
