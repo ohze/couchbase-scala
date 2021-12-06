@@ -30,5 +30,5 @@
     --set \
     --rbac-username cb \
     --rbac-password cb_password \
-    --roles bucket_admin[fodi],bucket_admin[acc] \
+    --roles data_reader[fodi],data_writer[fodi],data_reader[acc],data_writer[acc] \
     --auth-domain local
