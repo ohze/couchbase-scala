@@ -13,27 +13,25 @@ import scala.concurrent.Future
 import scala.concurrent.duration.Duration
 
 /** Base class for Couchbase Access Object.
-  * This class permit we interact (get/set/update/..) with couchbase server
-  * through a typed interface. Ex, given a class `D <: Document`
-  * (that means D is a subclass of [[com.couchbase.client.java.document.Document]])
+  * This class permit we interact (get/upsert/replace/..) with couchbase server
+  * through a typed interface:
   * instead of {{{
-  *   get(id: String): GetResult
-  *   upsert(id: String, content: T)(implicit serializer: JsonSerializer[T]): MutationResult
+  *   bucket.get(id: String): GetResult
+  *   bucket.upsert(id: String, content: T)(implicit serializer: JsonSerializer[T]): MutationResult
   * }}}
   * , we can: {{{
-  *   get(id: String): Future[T]
-  *   upsert(id: String, content: T): Future[MutationResult]
-  * }}}
-  * With T is your own type, ex `case class User(name: String, age: Int)`
-  *
-  * To able to do that, we need a Format[T]: {{{
-  *   object User {
-  *     val fmt: Format[User] = Json.format[User]
+  *   case class Acc(..)
+  *   object Acc {
+  *     implicit val fmt: OFormat[Acc] = Json.format[Acc]
+  *     // Used in upsert
+  *     implicit val ser: JsonSerializer[Trophy] = t => PlayEncode.serialize(Json.toJson(t))
   *   }
+  *   class AccCao(cluster: CBCluster) extends JsCao[Acc]
+  *   val cao: AccCao = ???
+  *   cao.get(id: String): Future[Acc]
+  *   cao.upsert(id: String, content: Acc): Future[MutationResult]
   * }}}
-  * @see [[WithCaoKey1]]
-  * @tparam T type that will be encoded before upsert using `writes(t: T): U`,
-  *           and decoded after get using `reads(u: U): T`
+  * @see [[JsCao1]], [[JsCao2]]
   */
 class JsCao[T](val bucket: CBBucket)(
   protected implicit val fmt: Format[T]
@@ -70,7 +68,7 @@ class JsCao[T](val bucket: CBBucket)(
 
 /** Common interface for [[JsCao]] and [[JsCao1]]
   * @tparam A String for document ID type, as in [[JsCao]]
-  *           Or some type that will be used to create the document id, as in WithCaoKey1.key(A)
+  *           Or some type that will be used to create the document id, as in JsCao1.key(A)
   */
 private[access] trait CaoTrait[T, A] {
   protected implicit val fmt: Format[T]
@@ -80,20 +78,20 @@ private[access] trait CaoTrait[T, A] {
   @deprecated("", "10.0.0")
   final type DocumentCAS = (T, Long)
 
-  /** @param id document id or the param of WithCaoKey1.key(a: A) */
+  /** @param id document id or the param of JsCao1.key(a: A) */
   def getResult(
     id: A,
     options: GetOptions = GetOptions()
   ): Future[GetResult]
 
-  /** @param id document id or the param of WithCaoKey1.key(a: A) */
+  /** @param id document id or the param of JsCao1.key(a: A) */
   final def get(
     id: A,
     options: GetOptions = GetOptions()
   )(implicit ec: ExecutionContext): Future[T] =
     getResult(id, options).map(_.contentAs[JsValue].get.as[T])
 
-  /** @param id document id or the param of WithCaoKey1.key(a: A) */
+  /** @param id document id or the param of JsCao1.key(a: A) */
   final def getWithCAS(
     id: A,
     options: GetOptions = GetOptions()
@@ -102,7 +100,7 @@ private[access] trait CaoTrait[T, A] {
       r.contentAs[JsValue].get.as[T] -> r.cas
     }
 
-  /** @param id document id or the param of WithCaoKey1.key(a: A) */
+  /** @param id document id or the param of JsCao1.key(a: A) */
   final def getOrElse(
     id: A,
     options: GetOptions = GetOptions()
@@ -111,7 +109,7 @@ private[access] trait CaoTrait[T, A] {
       default
     }
 
-  /** @param id document id or the param of WithCaoKey1.key(a: A) */
+  /** @param id document id or the param of JsCao1.key(a: A) */
   final def getOrElseWithCAS(
     id: A,
     options: GetOptions = GetOptions()
@@ -120,7 +118,7 @@ private[access] trait CaoTrait[T, A] {
       (default, -1)
     }
 
-  /** @param id document id or the param of WithCaoKey1.key(a: A) */
+  /** @param id document id or the param of JsCao1.key(a: A) */
   final def getOrUpdate(
     id: A,
     options: GetOptions = GetOptions()
@@ -129,19 +127,19 @@ private[access] trait CaoTrait[T, A] {
       setT(id, default)
     }
 
-  /** @param ids Seq of document id or the param of WithCaoKey1.key(a: A) */
+  /** @param ids Seq of document id or the param of JsCao1.key(a: A) */
   final def getBulk(ids: Seq[A])(
     implicit ec: ExecutionContext
   ): Future[Seq[T]] =
     Future.traverse(ids)(get(_, GetOptions()))
 
-  /** @param ids Seq of document id or the param of WithCaoKey1.key(a: A) */
+  /** @param ids Seq of document id or the param of JsCao1.key(a: A) */
   final def getBulkWithCAS(ids: Seq[A])(
     implicit ec: ExecutionContext
   ): Future[Seq[(T, Long)]] =
     Future.traverse(ids)(getWithCAS(_, GetOptions()))
 
-  /** @param ids Seq of document id or the param of WithCaoKey1.key(a: A) */
+  /** @param ids Seq of document id or the param of JsCao1.key(a: A) */
   final def setBulk(ids: Seq[A], contents: Seq[T])(
     implicit ec: ExecutionContext
   ): Future[Seq[MutationResult]] =
@@ -154,7 +152,7 @@ private[access] trait CaoTrait[T, A] {
     options: UpsertOptions = UpsertOptions()
   ): Future[MutationResult] = upsert(id, content, options)
 
-  /** @param id document id or the param of WithCaoKey1.key(a: A)
+  /** @param id document id or the param of JsCao1.key(a: A)
     * @param content the object of your own type `T` ex T=`case class User(...)`
     *          to be replace into cb server
     */
@@ -165,7 +163,7 @@ private[access] trait CaoTrait[T, A] {
   ): Future[MutationResult]
 
   /** Replaces the contents of a full document, if it already exists.
-    * @param id document id or the param of WithCaoKey1.key(a: A)
+    * @param id document id or the param of JsCao1.key(a: A)
     * @param content the object of your own type `T` ex T=`case class User(...)`
     *          to be replace into cb server
     */
@@ -176,7 +174,7 @@ private[access] trait CaoTrait[T, A] {
   ): Future[MutationResult]
 
   /** Replaces the contents of a full document, if it already exists.
-    * @param id document id or the param of WithCaoKey1.key(a: A)
+    * @param id document id or the param of JsCao1.key(a: A)
     * @param content the object of your own type `T` ex T=`case class User(...)`
     *          to be replace into cb server
     */
@@ -212,10 +210,10 @@ private[access] trait CaoTrait[T, A] {
   )(implicit ec: ExecutionContext): Future[T] =
     upsert(id, content, options).map(_ => content)
 
-  /** @param id document id or the param of WithCaoKey1.key(a: A) */
+  /** @param id document id or the param of JsCao1.key(a: A) */
   def remove(id: A, options: RemoveOptions): Future[MutationResult]
 
-  /** @param id document id or the param of WithCaoKey1.key(a: A) */
+  /** @param id document id or the param of JsCao1.key(a: A) */
   final def change(
     id: A,
     getOptions: GetOptions = GetOptions(),
@@ -230,7 +228,7 @@ private[access] trait CaoTrait[T, A] {
       .flatMap { o => upsert(id, f(o), setOptions) }
   }
 
-  /** @param id document id or the param of WithCaoKey1.key(a: A) */
+  /** @param id document id or the param of JsCao1.key(a: A) */
   final def flatChange(
     id: A,
     getOptions: GetOptions = GetOptions(),
@@ -244,13 +242,13 @@ private[access] trait CaoTrait[T, A] {
       .flatMap(f)
       .flatMap(upsert(id, _, setOptions))
 
-  /** @param ids Seq of document id or the param of WithCaoKey1.key(a: A) */
+  /** @param ids Seq of document id or the param of JsCao1.key(a: A) */
   final def changeBulk(ids: Seq[A])(
     f: Option[T] => T
   )(implicit ec: ExecutionContext): Future[Seq[MutationResult]] =
     Future.traverse(ids)(change(_)(f))
 
-  /** @param ids Seq of document id or the param of WithCaoKey1.key(a: A) */
+  /** @param ids Seq of document id or the param of JsCao1.key(a: A) */
   final def flatChangeBulk(ids: Seq[A])(
     f: Option[T] => Future[T]
   )(implicit ec: ExecutionContext): Future[Seq[MutationResult]] =
