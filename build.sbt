@@ -76,7 +76,15 @@ inThisBuild(
   )
 )
 
-// In Test code: com.sandinh.couchbase.GuiceSpecBase.setup
-// We use Guice's injectMembers that inject value for the GuiceSpecBase's private var `_cb`
-// using reflection which is deny by default in java 16+
-inThisBuild(addOpensForTest())
+inThisBuild(
+  // In Test code: com.sandinh.couchbase.GuiceSpecBase.setup
+  // We use Guice's injectMembers that inject value for the GuiceSpecBase's private var `_cb`
+  // using reflection which is deny by default in java 16+
+  addOpensForTest() ++ Seq(
+    Test / fork := true,
+    Test / javaOptions += {
+      val host = java.net.InetAddress.getLocalHost.getHostAddress
+      s"-Dcom.sandinh.couchbase.connectionString=$host"
+    },
+  )
+)
