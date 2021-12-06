@@ -1,113 +1,80 @@
 package com.sandinh.couchbase
 
-import java.lang
-import javax.inject._
-
-import com.couchbase.client.java.CouchbaseAsyncCluster
-import com.couchbase.client.java.document.Document
-import com.couchbase.client.java.env.CouchbaseEnvironment
-import com.couchbase.client.java.transcoder.Transcoder
-import com.sandinh.couchbase.transcoder._
+import com.couchbase.client.scala.env.TimeoutConfig
+import com.couchbase.client.scala.ClusterOptions
+import com.couchbase.client.scala.env.{
+  ClusterEnvironment,
+  PasswordAuthenticator
+}
+import com.couchbase.client.scala.AsyncCluster
 import com.typesafe.config.Config
 
-import scala.jdk.CollectionConverters._
+import javax.inject._
 import scala.concurrent.{Await, Future}
-import scala.util.Try
-import com.sandinh.couchbase.JavaConverters._
-import com.sandinh.rx.Implicits._
-
 import scala.concurrent.duration._
 
 /** @note ensure call #disconnect() at the end of application life */
 @Singleton
 class CBCluster @Inject() (config: Config) {
-  val env: CouchbaseEnvironment = CbEnvBuilder(config)
+  val env: ClusterEnvironment = CbEnvBuilder(config)
+  private val conf = config.getConfig("com.sandinh.couchbase")
 
-  val asJava: CouchbaseAsyncCluster =
-    CouchbaseAsyncCluster.fromConnectionString(
-      env,
-      config.getString("com.sandinh.couchbase.connectionString")
-    )
+  @deprecated("Use underlying", "10.0.0")
+  def asJava: AsyncCluster = underlying
 
-  /** Open bucket with typesafe config load from key com.sandinh.couchbase.buckets.`bucket`
-    * @param bucket use as a subkey of typesafe config for open bucket.
-    * @param legacyEncodeString set = true to choose CompatStringTranscoderLegacy, false to choose CompatStringTranscoder
-    * @param transcoders extra customize transcoders.
-    *
-    * @note JsTranscoder & CompatStringTranscoderLegacy | CompatStringTranscoder is auto passed to underlying `CouchbaseAsyncCluster.openBucket`,
-    * so don't need to be passed into `transcoders` param.
-    *
-    * @note couchbase will cache Bucket by name.
-    * So, if you need both legacyEncodeString & not-legacyEncodeString transcoder then you MUST create another cluster.
-    * see example in com.sandinh.couchbase.CompatStringSpec.bk1Compat
-    */
-  def openBucket(
-    bucket: String,
-    legacyEncodeString: Boolean,
-    transcoders: Transcoder[_ <: Document[_], _]*
-  ): Future[ScalaBucket] = {
-    val cfg = config.getConfig(s"com.sandinh.couchbase.buckets.$bucket")
-    val name = Try { cfg.getString("name") } getOrElse bucket
-    val pass = cfg.getString("password")
-    val stringTranscoder =
-      if (legacyEncodeString) CompatStringTranscoderLegacy
-      else CompatStringTranscoder
-    val trans = transcoders :+ JsTranscoder :+ stringTranscoder
-    asJava.openBucket(name, pass, trans.asJava).scMap(_.asScala).toFuture
-  }
+  lazy val underlying: AsyncCluster =
+    AsyncCluster
+      .connect(
+        conf.getString("connectionString"),
+        ClusterOptions(
+          PasswordAuthenticator(
+            conf.getString("user"),
+            conf.getString("password")
+          ),
+          Some(env)
+        ),
+      )
+      .get
 
-  /** @note You should never perform long-running blocking operations inside of an asynchronous stream (e.g. inside of maps or flatMaps)
-    * @see https://issues.couchbase.com/browse/JVMCBC-79
-    */
-  def openBucketSync(
-    bucket: String,
-    legacyEncodeString: Boolean,
-    transcoders: Transcoder[_ <: Document[_], _]*
-  ): ScalaBucket =
-    Await.result(
-      openBucket(bucket, legacyEncodeString, transcoders: _*),
-      env.connectTimeout.millis
-    )
+  def bucket(bucketName: String): CBBucket =
+    new CBBucket(underlying.bucket(bucketName), underlying)
 
-  /** openBucket(bucket, legacyEncodeString = true) */
-  def openBucket(bucket: String): Future[ScalaBucket] =
-    openBucket(bucket, legacyEncodeString = true)
+  @deprecated("Use bucket", "10.0.0")
+  def openBucket(bucketName: String): CBBucket = bucket(bucketName)
 
-  /** openBucketSync(bucket, legacyEncodeString = true)
-    * @note You should never perform long-running blocking operations inside of an asynchronous stream (e.g. inside of maps or flatMaps)
-    * @see https://issues.couchbase.com/browse/JVMCBC-79
-    */
-  def openBucketSync(bucket: String): ScalaBucket =
-    openBucketSync(bucket, legacyEncodeString = true)
+  @deprecated("Use bucket", "10.0.0")
+  def openBucketSync(bucketName: String): CBBucket = bucket(bucketName)
 
-  def disconnect(): Future[lang.Boolean] = asJava.disconnect().toFuture
+  def disconnect(): Future[Unit] = underlying.disconnect()
 
-  def disconnectSync(): Boolean = Await
+  def disconnectSync(): Unit = Await
     .result(
-      asJava.disconnect().toFuture,
-      env.disconnectTimeout.millis
+      disconnect(),
+      env.core.timeoutConfig().disconnectTimeout.toNanos.nanos
     )
-    .booleanValue
 }
 
 private object CbEnvBuilder {
-  import java.util.concurrent.TimeUnit.MILLISECONDS
-  import com.couchbase.client.java.env.DefaultCouchbaseEnvironment
-  import DefaultCouchbaseEnvironment.Builder
-
-  def apply(config: Config): CouchbaseEnvironment = {
-    val b = DefaultCouchbaseEnvironment.builder()
-    val c = config.getConfig("com.couchbase.timeout")
-
-    def set(k: String, f: Long => Builder): Builder =
-      if (c.hasPath(k)) f(c.getDuration(k, MILLISECONDS)) else b
-
-    set("management", b.managementTimeout)
-    set("query", b.queryTimeout)
-    set("view", b.viewTimeout)
-    set("kv", b.kvTimeout)
-    set("connect", b.connectTimeout)
-    set("disconnect", b.disconnectTimeout)
-      .build()
+  def apply(config: Config): ClusterEnvironment = {
+    val conf = config.getConfig("com.couchbase.timeout")
+    def c(k: String): Option[Duration] =
+      if (conf.hasPath(k)) Some(conf.getDuration(k).toNanos.nanos)
+      else None
+    val timeoutConfig = TimeoutConfig(
+      c("kv"),
+      c("kvDurable"),
+      c("management"),
+      c("query"),
+      c("view"),
+      c("search"),
+      c("analytics"),
+      c("connect"),
+      c("disconnect")
+    )
+    ClusterEnvironment
+      .Builder(owned = true)
+      .timeoutConfig(timeoutConfig)
+      .build
+      .get
   }
 }

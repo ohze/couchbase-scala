@@ -10,8 +10,8 @@ class CaoSpec extends GuiceSpecBase {
   "Cao" should {
     "success set & get" in {
       trophyCao
-        .set(username, Trophy.t1)
-        .map(_.content.as[Trophy]) must beEqualTo(Trophy.t1).await
+        .upsert(username, Trophy.t1)
+        .map(_.cas) must be_>(0L).await
       trophyCao.get(username) must beEqualTo(Trophy.t1).await
     }
   }
