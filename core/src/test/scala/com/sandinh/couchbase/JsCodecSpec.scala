@@ -4,30 +4,37 @@
   */
 package com.sandinh.couchbase
 
-import com.couchbase.client.scala.json.{JsonArray, JsonObject}
-import com.couchbase.client.scala.codec.JsonSerializer.PlayEncode
-import com.couchbase.client.scala.codec.JsonSerializer.JsonObjectConvert
-import Implicits._
 import com.couchbase.client.scala.codec.JsonSerializer
+import com.couchbase.client.scala.codec.JsonSerializer.{
+  JsonObjectConvert,
+  PlayEncode
+}
+import com.couchbase.client.scala.json.{JsonArray, JsonObject}
+import com.sandinh.couchbase.Implicits._
+import org.specs2.matcher.MatchResult
 import play.api.libs.json.Json
 
+import scala.concurrent.Future
+import scala.util.Random
+
 class JsCodecSpec extends GuiceSpecBase {
-  val key = "test_key"
+  val id = "test_key"
 
-  def jsGet = cb.bk1.getJsT[Trophy](key) must beEqualTo(Trophy.t1).await
-  def jsonGet = cb.bk1
-    .getT[JsonObject](key)
-    .map(json => json.toPlayJs.as[Trophy]) must beEqualTo(
-    Trophy.t1
-  ).await
+  def jsGet(idSuffix: Long): MatchResult[Future[Trophy]] =
+    cb.bk1.getJsT[Trophy](id + idSuffix) must beEqualTo(Trophy.t1).await
 
-  implicit val ser: JsonSerializer[Trophy] = t =>
-    PlayEncode.serialize(Json.toJson(t))
+  def jsonGet(idSuffix: Long): MatchResult[Future[Trophy]] =
+    cb.bk1
+      .getT[JsonObject](id + idSuffix)
+      .map(json => json.toPlayJs.as[Trophy]) must beEqualTo(Trophy.t1).await
 
-  def jsSet =
-    cb.bk1.upsert(key, Trophy.t1).map(_.cas) must be_>(0L).await
+  def jsSet(idSuffix: Long): MatchResult[Future[Long]] = {
+    implicit val ser: JsonSerializer[Trophy] = t =>
+      PlayEncode.serialize(Json.toJson(t))
+    cb.bk1.upsert(id + idSuffix, Trophy.t1).map(_.cas) must be_>(0L).await
+  }
 
-  def jsonSet = {
+  def jsonSet(idSuffix: Long): MatchResult[Future[Long]] = {
     import Trophy.t1
     val arr = JsonArray.create
     for (d <- t1.d) {
@@ -38,19 +45,22 @@ class JsCodecSpec extends GuiceSpecBase {
     val js = JsonObject.create
       .put("n", t1.n)
       .put("d", arr)
-    cb.bk1.upsert(key, js).map(_.cas) must be_>(0L).await
+    cb.bk1.upsert(id + idSuffix, js).map(_.cas) must be_>(0L).await
   }
 
   "JsCodec" should {
-    "upsert using JsTranscoder then get using JsonTranscoder/ JsTranscoder" in {
-      jsSet
-      jsonGet
-//      jsGet
+    "upsert using PlayEncode + play-json then get using play-json or JsonObject" in {
+      val suffix = Random.nextLong()
+      jsSet(suffix)
+      jsGet(suffix)
+      jsonGet(suffix)
     }
-//    "upsert using JsonTranscoder then get using JsonTranscoder/ JsTranscoder" in {
-//      jsonSet
-//      jsonGet
-//      jsGet
-//    }
+
+    "upsert using JsonObject then get using play-json or JsonObject" in {
+      val suffix = Random.nextLong()
+      jsonSet(suffix)
+      jsGet(suffix)
+      jsonGet(suffix)
+    }
   }
 }
