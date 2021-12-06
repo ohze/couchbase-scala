@@ -6,9 +6,9 @@ docker run -d \
   --ulimit memlock=100000000:100000000 \
   --name cb \
   -p 8091-8094:8091-8094 -p 11210:11210 \
-  -v `pwd`/cb-test-prepare.sh:/cb-test-prepare.sh \
-  couchbase:enterprise-$CB_VERSION
+  -v "$(pwd)"/cb-test-prepare.sh:/cb-test-prepare.sh \
+  "couchbase:enterprise-$CB_VERSION"
 
-for i in {1..5}; do
+for _ in {1..5}; do
   docker exec cb /cb-test-prepare.sh && break || sleep 8;
 done
