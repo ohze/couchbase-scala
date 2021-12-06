@@ -5,6 +5,29 @@ Backward binary compatibility is ensured by [mima](https://github.com/lightbend/
 
 See also [mima-filters](core/src/main/mima-filters)
 
+#### v10.0.0
++ Use com.couchbase.client:scala-client:1.2.3 instead of com.couchbase.client:java-client 2.7.22  
+  See [Migrating from SDK2 to SDK3 API](https://docs.couchbase.com/java-sdk/current/project-docs/migrating-sdk-code-to-3.n.html)
+  And [Couchbase Scala SDK](https://docs.couchbase.com/scala-sdk/current/hello-world/start-using-sdk.html)
++ Note: In sdk3, couchbase [use Reactor instead of RxJava](https://docs.couchbase.com/java-sdk/current/project-docs/migrating-sdk-code-to-3.n.html#reactive-and-async-apis).
+  So couchbase-scala 10.x also depends on Reactor instead of RxJava.
++ Don't support couchbase 4.x
++ [Don't support bucket-level passwords](https://docs.couchbase.com/java-sdk/current/project-docs/migrating-sdk-code-to-3.n.html#authentication)
+  You need set config `com.sandinh.couchbase.{user, password}` and give the user corresponding roles
++ `DocumentDoesNotExistException` -> `DocumentNotFoundException`
++ Deprecated `ScalaBucket`. Now `ScalaBucket` is aliased to `CBBucket`
++ In sdk 3, `Document` class is removed and the returned value is now `Result`.
+  - `CBBucket.get[D <: Document[_]](id: String)(implicit tag: ClassTag[D]): Future[D]` is changed to  
+  `get(id: String, options: GetOptions = GetOptions()): Future[GetResult]`
+  - Similar to other methods such as `insert, append, prepend,..`
+  - `getT[T](id: String)(implicit c: Class[_ <: Document[T]]): Future[T]` implicit params change:
+    Instead of `Class[_ <: Document[T]]`, we now need `JsonDeserializer[T], WeakTypeTag[T], ClassTag[T]`.
+    Note: Don't need the implicit `WeakTypeTag[T]` if [this change](https://review.couchbase.org/c/couchbase-jvm-clients/+/166690) is merged.
++ Deprecated `asJava` of `CBCluster`, `CBBucket`. Pls use `underlying`
++ Use `implicit ec: ExecutionContext` param instead of `ExecutionContext.Implicits.global` in:
+  - `CBBucket.{getJsT, getT}`
++ Remove the deprecated `CBCluster.getOrElseT`
+
 ##### v9.2.0
 + Compatible with 9.0.0 except [9.0.0.backward.excludes](core/src/main/mima-filters/9.0.0.backward.excludes)
 + Update com.couchbase.client:java-client:2.7.20 -> 2.7.22

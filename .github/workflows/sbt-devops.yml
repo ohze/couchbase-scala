@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         java: [ '8', '11', '17' ]
-        couchbase: [ '4.6.5', '5.0.1' ]
+        couchbase: [ '7.0.2', '5.0.1' ]
     steps:
       - uses: actions/checkout@v2
       - id: commitMsg
@@ -31,7 +31,7 @@ jobs:
             couchbase:enterprise-${{ matrix.couchbase }}
 
           for i in {1..5}; do
-            docker exec -e CB=${{ matrix.couchbase }} cb /cb-test-prepare.sh && break || sleep 8;
+            docker exec cb /cb-test-prepare.sh && break || sleep 8;
           done
 
         working-directory: .
@@ -51,10 +51,7 @@ jobs:
     if: |
       success() &&
       github.event_name == 'push' &&
-      (github.ref == 'refs/heads/7.x' ||
-        github.ref == 'refs/heads/8.x' ||
-        github.ref == 'refs/heads/9.x' ||
-        github.ref == 'refs/heads/master' ||
+      (github.ref == 'refs/heads/master' ||
         startsWith(github.ref, 'refs/tags/'))
     runs-on: ubuntu-20.04
     outputs:

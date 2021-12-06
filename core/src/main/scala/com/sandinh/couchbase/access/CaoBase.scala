@@ -1,134 +1,258 @@
 package com.sandinh.couchbase.access
 
-import com.couchbase.client.java.document.Document
-import com.couchbase.client.java.error.DocumentDoesNotExistException
-import com.sandinh.couchbase.ScalaBucket
+import com.couchbase.client.core.error.DocumentNotFoundException
+import com.couchbase.client.scala.codec.JsonSerializer.PlayEncode
+import com.couchbase.client.scala.durability.Durability
+import com.couchbase.client.scala.durability.Durability.Disabled
+import com.couchbase.client.scala.kv._
+import com.sandinh.couchbase.CBBucket
+import play.api.libs.json.{Format, JsValue, Json}
+
+import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import scala.reflect.ClassTag
-import scala.concurrent.ExecutionContext.Implicits.global // TODO remove
+import scala.concurrent.duration.Duration
 
 /** Base class for Couchbase Access Object.
   * This class permit we interact (get/set/update/..) with couchbase server
   * through a typed interface. Ex, given a class `D <: Document`
   * (that means D is a subclass of [[com.couchbase.client.java.document.Document]])
   * instead of {{{
-  *   // com.couchbase.client.java.AsyncBucket#get
-  *   get(id: String): Observable[D]
-  *   // com.couchbase.client.java.AsyncBucket#upsert
-  *   upsert(document: D): Observable[D]
+  *   get(id: String): GetResult
+  *   upsert(id: String, content: T)(implicit serializer: JsonSerializer[T]): MutationResult
   * }}}
   * , we can: {{{
   *   get(id: String): Future[T]
-  *   set(id: String, t: T): Future[D]
+  *   upsert(id: String, content: T): Future[MutationResult]
   * }}}
   * With T is your own type, ex `case class User(name: String, age: Int)`
   *
-  * To able to do that, we need implement this class' 2 abstract methods: {{{
-  *   def reads(u: U): T
-  *   def writes(t: T): U
+  * To able to do that, we need a Format[T]: {{{
+  *   object User {
+  *     val fmt: Format[User] = Json.format[User]
+  *   }
   * }}}
   * @see [[WithCaoKey1]]
   * @tparam T type that will be encoded before upsert using `writes(t: T): U`,
   *           and decoded after get using `reads(u: U): T`
-  * @tparam U the Document's content type, ex JsValue, primitive types,..
-  *           See classes that implement `com.couchbase.client.java.document.Document` for all available type
-  *           (of course you can implement your own)
-  * @tparam D the Document type
   */
-abstract class CaoBase[T, U, D <: Document[U]: ClassTag](bucket: ScalaBucket)
-    extends CaoTrait[T, String, U, D] {
+class JsCao[T](val bucket: CBBucket)(
+  protected implicit val fmt: Format[T]
+) extends CaoTrait[T, String] {
 
-  /** @param id document id */
-  final def get(id: String): Future[T] =
-    bucket.get[D](id).map(d => reads(d.content))
+  /** @inheritdoc */
+  final def getResult(
+    id: String,
+    options: GetOptions = GetOptions()
+  ): Future[GetResult] = bucket.get(id, options)
 
-  /** @param id document id */
-  final def getWithCAS(id: String): Future[DocumentCAS] =
-    bucket.get[D](id).map(d => (reads(d.content), d.cas()))
+  /** @inheritdoc */
+  final def upsert(
+    id: String,
+    content: T,
+    options: UpsertOptions = UpsertOptions()
+  ): Future[MutationResult] =
+    bucket.upsert(id, Json.toJson(content), options.expiry(expiry))
 
-  /** @param id document id
-    * @param t the object of your own type `T` ex T=`case class User(...)`
-    *          to be upsert into cb server
-    */
-  final def set(id: String, t: T): Future[D] =
-    bucket.upsert(createDoc(id, expiry(), writes(t)))
+  /** @inheritdoc */
+  final def replace(
+    id: String,
+    content: T,
+    options: ReplaceOptions
+  ): Future[MutationResult] =
+    bucket.replace(id, Json.toJson(content), options.expiry(expiry))
 
-  /** @param id document id
-    * @param t the object of your own type `T` ex T=`case class User(...)`
-    *          to be upsert into cb server
-    */
-  final def update(id: String, t: T, cas: Long = 0): Future[D] =
-    bucket.replace(createDoc(id, expiry(), writes(t), cas))
-
-  /** @param id document id */
-  final def remove(id: String): Future[D] = bucket.remove[D](id)
+  /** @inheritdoc */
+  final def remove(
+    id: String,
+    options: RemoveOptions = RemoveOptions()
+  ): Future[MutationResult] = bucket.remove(id, options)
 }
 
-/** Common interface for [[CaoBase]] and [[WithCaoKey1]] */
-private[access] trait CaoTrait[T, A, U, D <: Document[U]] {
-  protected def expiry(): Int = 0
+/** Common interface for [[JsCao]] and [[JsCao1]]
+  * @tparam A String for document ID type, as in [[JsCao]]
+  *           Or some type that will be used to create the document id, as in WithCaoKey1.key(A)
+  */
+private[access] trait CaoTrait[T, A] {
+  protected implicit val fmt: Format[T]
 
-  protected def reads(u: U): T
-  protected def writes(t: T): U
+  protected def expiry: Duration = null
 
+  @deprecated("", "10.0.0")
   final type DocumentCAS = (T, Long)
 
-  protected def createDoc(
-    id: String,
-    expiry: Int,
-    content: U,
-    cas: Long = 0L
-  ): D
+  /** @param id document id or the param of WithCaoKey1.key(a: A) */
+  def getResult(
+    id: A,
+    options: GetOptions = GetOptions()
+  ): Future[GetResult]
 
-  def get(a: A): Future[T]
-  def getWithCAS(a: A): Future[(T, Long)]
+  /** @param id document id or the param of WithCaoKey1.key(a: A) */
+  final def get(
+    id: A,
+    options: GetOptions = GetOptions()
+  )(implicit ec: ExecutionContext): Future[T] =
+    getResult(id, options).map(_.contentAs[JsValue].get.as[T])
 
-  /** @param a document id or the param of WithCaoKey1.key(a: A) */
-  final def getOrElse(a: A)(default: => T): Future[T] = get(a).recover {
-    case _: DocumentDoesNotExistException => default
-  }
+  /** @param id document id or the param of WithCaoKey1.key(a: A) */
+  final def getWithCAS(
+    id: A,
+    options: GetOptions = GetOptions()
+  )(implicit ec: ExecutionContext): Future[(T, Long)] =
+    getResult(id, options).map { r =>
+      r.contentAs[JsValue].get.as[T] -> r.cas
+    }
 
-  /** @param a document id or the param of WithCaoKey1.key(a: A) */
-  final def getOrElseWithCAS(a: A)(default: => T): Future[DocumentCAS] =
-    getWithCAS(a).recover { case _: DocumentDoesNotExistException =>
+  /** @param id document id or the param of WithCaoKey1.key(a: A) */
+  final def getOrElse(
+    id: A,
+    options: GetOptions = GetOptions()
+  )(default: => T)(implicit ec: ExecutionContext): Future[T] =
+    get(id, options).recover { case _: DocumentNotFoundException =>
+      default
+    }
+
+  /** @param id document id or the param of WithCaoKey1.key(a: A) */
+  final def getOrElseWithCAS(
+    id: A,
+    options: GetOptions = GetOptions()
+  )(default: => T)(implicit ec: ExecutionContext): Future[(T, Long)] =
+    getWithCAS(id, options).recover { case _: DocumentNotFoundException =>
       (default, -1)
     }
 
-  /** @param a document id or the param of WithCaoKey1.key(a: A) */
-  final def getOrUpdate(a: A)(default: => T): Future[T] = get(a).recoverWith {
-    case _: DocumentDoesNotExistException => setT(a, default)
-  }
+  /** @param id document id or the param of WithCaoKey1.key(a: A) */
+  final def getOrUpdate(
+    id: A,
+    options: GetOptions = GetOptions()
+  )(default: => T)(implicit ec: ExecutionContext): Future[T] =
+    get(id, options).recoverWith { case _: DocumentNotFoundException =>
+      setT(id, default)
+    }
 
-  final def getBulk(aa: Seq[A]): Future[Seq[T]] = Future.traverse(aa)(get)
-  final def getBulkWithCAS(aa: Seq[A]): Future[Seq[DocumentCAS]] =
-    Future.traverse(aa)(getWithCAS)
+  /** @param ids Seq of document id or the param of WithCaoKey1.key(a: A) */
+  final def getBulk(ids: Seq[A])(
+    implicit ec: ExecutionContext
+  ): Future[Seq[T]] =
+    Future.traverse(ids)(get(_, GetOptions()))
 
-  final def setBulk(aa: Seq[A], tt: Seq[T]): Future[Seq[D]] =
-    Future.traverse(aa zip tt) { case (a, t) => set(a, t) }
+  /** @param ids Seq of document id or the param of WithCaoKey1.key(a: A) */
+  final def getBulkWithCAS(ids: Seq[A])(
+    implicit ec: ExecutionContext
+  ): Future[Seq[(T, Long)]] =
+    Future.traverse(ids)(getWithCAS(_, GetOptions()))
 
-  def set(a: A, t: T): Future[D]
-  def update(id: A, t: T, cas: Long = 0): Future[D]
+  /** @param ids Seq of document id or the param of WithCaoKey1.key(a: A) */
+  final def setBulk(ids: Seq[A], contents: Seq[T])(
+    implicit ec: ExecutionContext
+  ): Future[Seq[MutationResult]] =
+    Future.traverse(ids zip contents) { case (a, t) => upsert(a, t) }
+
+  @deprecated("Use upsert or replace. This `set` method use `upsert`", "10.0.0")
+  final def set(
+    id: A,
+    content: T,
+    options: UpsertOptions = UpsertOptions()
+  ): Future[MutationResult] = upsert(id, content, options)
+
+  /** @param id document id or the param of WithCaoKey1.key(a: A)
+    * @param content the object of your own type `T` ex T=`case class User(...)`
+    *          to be replace into cb server
+    */
+  def upsert(
+    id: A,
+    content: T,
+    options: UpsertOptions = UpsertOptions()
+  ): Future[MutationResult]
+
+  /** Replaces the contents of a full document, if it already exists.
+    * @param id document id or the param of WithCaoKey1.key(a: A)
+    * @param content the object of your own type `T` ex T=`case class User(...)`
+    *          to be replace into cb server
+    */
+  def replace(
+    id: A,
+    content: T,
+    options: ReplaceOptions
+  ): Future[MutationResult]
+
+  /** Replaces the contents of a full document, if it already exists.
+    * @param id document id or the param of WithCaoKey1.key(a: A)
+    * @param content the object of your own type `T` ex T=`case class User(...)`
+    *          to be replace into cb server
+    */
+  final def replace(
+    id: A,
+    content: T,
+    cas: Long = 0,
+    durability: Durability = Disabled,
+    timeout: Duration = Duration.MinusInf
+  ): Future[MutationResult] = replace(
+    id,
+    content,
+    ReplaceOptions().cas(cas).durability(durability).timeout(timeout)
+  )
+
+  @deprecated("Use replace", "10.0.0")
+  final def update(id: A, content: T, cas: Long = 0): Future[MutationResult] =
+    replace(id, content, cas)
+
+  @deprecated("Use replace", "10.0.0")
+  final def updateWithCAS(
+    id: A,
+    content: T,
+    cas: Long = 0
+  ): Future[MutationResult] =
+    replace(id, content, cas)
 
   /** convenient method. = set(..).map(_ => t) */
-  final def setT(a: A, t: T): Future[T] = set(a, t).map(_ => t)
+  final def setT(
+    id: A,
+    content: T,
+    options: UpsertOptions = UpsertOptions()
+  )(implicit ec: ExecutionContext): Future[T] =
+    upsert(id, content, options).map(_ => content)
 
-  def remove(a: A): Future[D]
+  /** @param id document id or the param of WithCaoKey1.key(a: A) */
+  def remove(id: A, options: RemoveOptions): Future[MutationResult]
 
-  final def change(a: A)(f: Option[T] => T): Future[D] = get(a)
-    .map(Option(_))
-    .recover { case _: DocumentDoesNotExistException => None }
-    .flatMap { o => set(a, f(o)) }
+  /** @param id document id or the param of WithCaoKey1.key(a: A) */
+  final def change(
+    id: A,
+    getOptions: GetOptions = GetOptions(),
+    setOptions: UpsertOptions = UpsertOptions()
+  )(
+    f: Option[T] => T
+  )(implicit ec: ExecutionContext): Future[MutationResult] = {
+    // TODO https://docs.couchbase.com/scala-sdk/current/howtos/kv-operations.html#retrying-on-cas-failures
+    get(id, getOptions)
+      .map(Option(_))
+      .recover { case _: DocumentNotFoundException => None }
+      .flatMap { o => upsert(id, f(o), setOptions) }
+  }
 
-  final def flatChange(a: A)(f: Option[T] => Future[T]): Future[D] = get(a)
-    .map(Option(_))
-    .recover { case _: DocumentDoesNotExistException => None }
-    .flatMap(f)
-    .flatMap(set(a, _))
-
-  final def changeBulk(aa: Seq[A])(f: Option[T] => T): Future[Seq[D]] =
-    Future.traverse(aa)(change(_)(f))
-
-  final def flatChangeBulk(aa: Seq[A])(
+  /** @param id document id or the param of WithCaoKey1.key(a: A) */
+  final def flatChange(
+    id: A,
+    getOptions: GetOptions = GetOptions(),
+    setOptions: UpsertOptions = UpsertOptions()
+  )(
     f: Option[T] => Future[T]
-  ): Future[Seq[D]] = Future.traverse(aa)(flatChange(_)(f))
+  )(implicit ec: ExecutionContext): Future[MutationResult] =
+    get(id, getOptions)
+      .map(Option(_))
+      .recover { case _: DocumentNotFoundException => None }
+      .flatMap(f)
+      .flatMap(upsert(id, _, setOptions))
+
+  /** @param ids Seq of document id or the param of WithCaoKey1.key(a: A) */
+  final def changeBulk(ids: Seq[A])(
+    f: Option[T] => T
+  )(implicit ec: ExecutionContext): Future[Seq[MutationResult]] =
+    Future.traverse(ids)(change(_)(f))
+
+  /** @param ids Seq of document id or the param of WithCaoKey1.key(a: A) */
+  final def flatChangeBulk(ids: Seq[A])(
+    f: Option[T] => Future[T]
+  )(implicit ec: ExecutionContext): Future[Seq[MutationResult]] =
+    Future.traverse(ids)(flatChange(_)(f))
 }
