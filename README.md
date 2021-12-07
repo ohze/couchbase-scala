@@ -56,13 +56,11 @@ val s = accBucket.getT[String]("some_key")
 4. you can use play-json to retrieve a JsValue directly
 ```scala
 import play.api.libs.json.{Json, Format}
-import com.couchbase.client.scala.codec.JsonSerializer, JsonSerializer.PlayEncode
+import com.sandinh.couchbase.Implicits.jsonSerializer // Used in upsert
 
 case class Acc(name: String, gender: Option[Boolean])
 object Acc {
   implicit val fmt: OFormat[Acc] = Json.format[Acc]
-  // Used in upsert
-  implicit val ser: JsonSerializer[Trophy] = t => PlayEncode.serialize(Json.toJson(t))
 }
 accBucket.upsert("some_key", Acc("name", None))
 val name = accBucket.getJsT[Acc]("some_key").map(_.name)
