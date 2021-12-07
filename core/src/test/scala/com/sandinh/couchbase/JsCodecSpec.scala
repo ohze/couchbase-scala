@@ -4,15 +4,10 @@
   */
 package com.sandinh.couchbase
 
-import com.couchbase.client.scala.codec.JsonSerializer
-import com.couchbase.client.scala.codec.JsonSerializer.{
-  JsonObjectConvert,
-  PlayEncode
-}
+import com.couchbase.client.scala.codec.JsonSerializer.JsonObjectConvert
 import com.couchbase.client.scala.json.{JsonArray, JsonObject}
 import com.sandinh.couchbase.Implicits._
 import org.specs2.matcher.MatchResult
-import play.api.libs.json.Json
 
 import scala.concurrent.Future
 import scala.util.Random
@@ -28,11 +23,8 @@ class JsCodecSpec extends GuiceSpecBase {
       .getT[JsonObject](id + idSuffix)
       .map(json => json.toPlayJs.as[Trophy]) must beEqualTo(Trophy.t1).await
 
-  def jsSet(idSuffix: Long): MatchResult[Future[Long]] = {
-    implicit val ser: JsonSerializer[Trophy] = t =>
-      PlayEncode.serialize(Json.toJson(t))
+  def jsSet(idSuffix: Long): MatchResult[Future[Long]] =
     cb.bk1.upsert(id + idSuffix, Trophy.t1).map(_.cas) must be_>(0L).await
-  }
 
   def jsonSet(idSuffix: Long): MatchResult[Future[Long]] = {
     import Trophy.t1
