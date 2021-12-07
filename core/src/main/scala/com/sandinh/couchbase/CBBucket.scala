@@ -94,24 +94,34 @@ final class CBBucket(val underlying: AsyncBucket, val cluster: AsyncCluster) {
     options: GetAndTouchOptions = GetAndTouchOptions()
   ): Future[GetResult] = defaultCol.getAndTouch(id, expiry, options)
 
+  /** Inserts a full document into this collection, if it does not exist already.
+    * @see [[upsert]], [[replace]]
+    */
   def insert[T: JsonSerializer](
     id: String,
     content: T,
     options: InsertOptions = InsertOptions()
   ): Future[MutationResult] = defaultCol.insert(id, content, options)
 
+  /** Upserts the contents of a full document in this collection.
+    * @see [[insert]], [[replace]]
+    */
   def upsert[T: JsonSerializer](
     id: String,
     content: T,
     options: UpsertOptions = UpsertOptions()
   ): Future[MutationResult] = defaultCol.upsert(id, content, options)
 
+  /** Replaces the contents of a full document in this collection, if it already exists.
+    * @see [[insert]], [[upsert]]
+    */
   def replace[T: JsonSerializer](
     id: String,
     content: T,
     options: ReplaceOptions = ReplaceOptions()
   ): Future[MutationResult] = defaultCol.replace(id, content, options)
 
+  /** Removes a document from this collection, if it exists. */
   def remove(
     id: String,
     options: RemoveOptions = RemoveOptions()

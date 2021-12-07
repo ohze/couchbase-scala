@@ -17,7 +17,7 @@ abstract class JsCao1[T, A](
 ) extends CaoTrait[T, A] {
 
   /** Map param of type A to a CB key
-    * @return CB key
+    * @return CB key (id)
     */
   protected def key(a: A): String
 
@@ -26,6 +26,14 @@ abstract class JsCao1[T, A](
     a: A,
     options: GetOptions = GetOptions()
   ): Future[GetResult] = bucket.get(key(a), options)
+
+  /** @inheritdoc */
+  final def insert(
+    a: A,
+    content: T,
+    options: InsertOptions = InsertOptions()
+  ): Future[MutationResult] =
+    bucket.insert(key(a), Json.toJson(content), options.expiry(expiry))
 
   /** @inheritdoc */
   final def upsert(
