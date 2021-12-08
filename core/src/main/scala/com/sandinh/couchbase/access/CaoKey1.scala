@@ -16,7 +16,7 @@ import play.api.libs.json.{Format, Json}
 import scala.concurrent.Future
 
 /** @inheritdoc */
-private[access] trait CaoKey0[T] extends CaoKey1[T, String] {
+private[access] trait CaoKeyId[T] extends CaoKey1[T, String] {
 
   /** @inheritdoc */
   override final protected def key(id: String): String = id
