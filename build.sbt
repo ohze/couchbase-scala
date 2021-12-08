@@ -1,3 +1,9 @@
+val emptyDoc = Compile / packageDoc := {
+  val f = (Compile / packageDoc / artifactPath).value
+  IO.touch(f)
+  f
+}
+
 lazy val `couchbase-scala` = projectMatrix
   .in(file("core"))
   .configAxis(config13, Seq(scala212, scala213))
@@ -10,6 +16,7 @@ lazy val `couchbase-scala` = projectMatrix
       "com.typesafe" % "config" % configAxis.value.version,
       "com.google.inject" % "guice" % "5.0.1" % Test,
     ) ++ specs2("-core").value,
+    emptyDoc,
   )
 
 lazy val `couchbase-play` = projectMatrix
@@ -45,6 +52,7 @@ lazy val `couchbase-play` = projectMatrix
       Seq(
         "ch.qos.logback" % "logback-classic" % "1.2.7" % Test,
       ),
+    emptyDoc,
   )
 
 // only aggregating project
