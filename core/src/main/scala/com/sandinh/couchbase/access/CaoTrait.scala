@@ -1,85 +1,29 @@
 package com.sandinh.couchbase.access
 
+import com.couchbase.client.scala.kv.OptionsConvert._
 import com.couchbase.client.core.error.{
   CasMismatchException,
   DocumentExistsException,
   DocumentNotFoundException
 }
-import com.couchbase.client.scala.codec.JsonSerializer.PlayEncode
 import com.couchbase.client.scala.durability.Durability
 import com.couchbase.client.scala.durability.Durability.Disabled
-import com.couchbase.client.scala.kv._
-import com.couchbase.client.scala.kv.OptionsConvert._
-import com.sandinh.couchbase.CBBucket
-import play.api.libs.json.{Format, JsValue, Json}
+import com.couchbase.client.scala.kv.{
+  GetOptions,
+  GetResult,
+  InsertOptions,
+  MutationResult,
+  RemoveOptions,
+  ReplaceOptions,
+  UpsertOptions
+}
+import play.api.libs.json.{Format, JsValue}
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.Duration
 
-/** Base class for Couchbase Access Object.
-  * This class permit we interact (get/upsert/replace/..) with couchbase server
-  * through a typed interface:
-  * instead of {{{
-  *   bucket.get(id: String): GetResult
-  *   bucket.upsert(id: String, content: T)(implicit serializer: JsonSerializer[T]): MutationResult
-  * }}}
-  * , we can: {{{
-  *   case class Acc(..)
-  *   object Acc {
-  *     implicit val fmt: OFormat[Acc] = Json.format[Acc]
-  *     // Used in upsert
-  *     implicit val ser: JsonSerializer[Trophy] = t => PlayEncode.serialize(Json.toJson(t))
-  *   }
-  *   class AccCao(cluster: CBCluster) extends JsCao[Acc]
-  *   val cao: AccCao = ???
-  *   cao.get(id: String): Future[Acc]
-  *   cao.upsert(id: String, content: Acc): Future[MutationResult]
-  * }}}
-  * @see [[JsCao1]], [[JsCao2]]
-  */
-class JsCao[T](val bucket: CBBucket)(
-  protected implicit val fmt: Format[T]
-) extends CaoTrait[T, String] {
-
-  /** @inheritdoc */
-  final def getResult(
-    id: String,
-    options: GetOptions = GetOptions()
-  ): Future[GetResult] = bucket.get(id, options)
-
-  /** @inheritdoc */
-  final def insert(
-    id: String,
-    content: T,
-    options: InsertOptions = InsertOptions()
-  ): Future[MutationResult] =
-    bucket.insert(id, Json.toJson(content), options.expiry(expiry))
-
-  /** @inheritdoc */
-  final def upsert(
-    id: String,
-    content: T,
-    options: UpsertOptions = UpsertOptions()
-  ): Future[MutationResult] =
-    bucket.upsert(id, Json.toJson(content), options.expiry(expiry))
-
-  /** @inheritdoc */
-  final def replace(
-    id: String,
-    content: T,
-    options: ReplaceOptions
-  ): Future[MutationResult] =
-    bucket.replace(id, Json.toJson(content), options.expiry(expiry))
-
-  /** @inheritdoc */
-  final def remove(
-    id: String,
-    options: RemoveOptions = RemoveOptions()
-  ): Future[MutationResult] = bucket.remove(id, options)
-}
-
 /** Common interface for [[JsCao]] and [[JsCao1]]
+  *
   * @tparam A String for document ID type, as in [[JsCao]]
   *           Or some type that will be used to create the document id, as in JsCao1.key(A)
   */
