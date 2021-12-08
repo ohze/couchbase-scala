@@ -7,7 +7,7 @@ import scala.concurrent.{ExecutionContext, Future}
   * that can be decode/encode to/from the `T` type -
   * which is store in couchbase at key generated from the T.key(A, B) method
   */
-private[access] trait CaoKey2[T, A, B] extends CaoKey0[T] {
+private[access] trait CaoKey2[T, A, B] extends CaoKeyId[T] {
 
   /** Map 2 param of type A, B to a CB key
     * @return CB key
@@ -47,7 +47,7 @@ private[access] trait CaoKey2[T, A, B] extends CaoKey0[T] {
   def replace(a: A, b: B, content: T): Future[MutationResult] =
     replace(key(a, b), content)
 
-  /** convenient method. = set(..).map(_ => t) */
+  /** convenient method. = upsert(..).map(_ => t) */
   final def setT(a: A, b: B, content: T)(
     implicit ec: ExecutionContext
   ): Future[T] =
