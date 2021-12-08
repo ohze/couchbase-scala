@@ -17,7 +17,10 @@ abstract class JsCao1[T, A](
   val bucket: CBBucket
 )(
   protected implicit val fmt: Format[T]
-) extends CaoKey1[T, A]
+) extends CaoKey1[T, A] {
+  @deprecated("May be removed in later versions", "10.0.0")
+  final lazy val self = new JsCao(bucket)
+}
 
 /** @inheritdoc */
 abstract class JsCao2[T, A, B](
