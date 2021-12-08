@@ -1,8 +1,6 @@
-val emptyDoc = Compile / packageDoc := {
-  val f = (Compile / packageDoc / artifactPath).value
-  IO.touch(f)
-  f
-}
+val emptyDoc = Compile / packageDoc / mappings := Seq(
+  (ThisBuild / baseDirectory).value / "README.md" -> "README.md"
+)
 
 lazy val `couchbase-scala` = projectMatrix
   .in(file("core"))
