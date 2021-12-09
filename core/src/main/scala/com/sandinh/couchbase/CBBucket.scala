@@ -607,6 +607,19 @@ final class CBBucket(val underlying: AsyncBucket, val cluster: AsyncCluster) {
   ): Future[CounterResult] =
     defaultCol.binary.increment(id, delta, IncrementOptions(Some(initial)))
 
+  /** See doc of the other overload method */
+  def counter(
+    id: String,
+    delta: Long,
+    initial: Long,
+    expiry: Duration
+  ): Future[CounterResult] =
+    defaultCol.binary.increment(
+      id,
+      delta,
+      IncrementOptions(Some(initial), expiry = expiry)
+    )
+
   /** Add bytes to the end of a Couchbase binary document.
     *
     * $OnlyBinary
