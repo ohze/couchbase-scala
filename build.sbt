@@ -2,6 +2,35 @@ val emptyDoc = Compile / packageDoc / mappings := Seq(
   (ThisBuild / baseDirectory).value / "README.md" -> "README.md"
 )
 
+def resourcePrepare(extra: Def.Initialize[Task[String]]) =
+  resourceGenerators += Def.task {
+    val f = managedResourceDirectories.value.head / "application.conf"
+    val host = java.net.InetAddress.getLocalHost.getHostAddress
+    IO.write(
+      f,
+      s"""com.sandinh.couchbase {
+         |  connectionString="couchbase://$host"
+         |  user="cb"
+         |  password="cb_password"
+         |}
+         |${extra.value}
+         |""".stripMargin
+    )
+    Seq(f)
+  }
+
+// util project to test couchbase-scala backward compatibility
+lazy val `compat-test` = project
+  .settings(
+    skipPublish,
+    scalaVersion := scala213,
+    resolvers += Resolver.sonatypeRepo("public"),
+    libraryDependencies ++= Seq(
+      "com.sandinh" %% "couchbase-scala" % "9.2.0",
+    ),
+    inConfig(Compile)(resourcePrepare(Def.task(""))),
+  )
+
 lazy val `couchbase-scala` = projectMatrix
   .in(file("core"))
   .configAxis(config13, Seq(scala212, scala213))
@@ -15,6 +44,15 @@ lazy val `couchbase-scala` = projectMatrix
       "com.google.inject" % "guice" % "5.0.1" % Test,
     ) ++ specs2("-core").value,
     emptyDoc,
+    inConfig(Test)(resourcePrepare(Def.task {
+      val cp = (`compat-test` / Runtime / fullClasspath).value
+        .map(_.data.getAbsolutePath)
+        .mkString(":")
+      s"""compat-test.classpath="$cp""""
+    })),
+    Test / test := (Test / test)
+      .dependsOn(`compat-test` / Compile / compile)
+      .value,
   )
 
 lazy val `couchbase-play` = projectMatrix
@@ -51,6 +89,7 @@ lazy val `couchbase-play` = projectMatrix
         "ch.qos.logback" % "logback-classic" % "1.2.7" % Test,
       ),
     emptyDoc,
+    inConfig(Test)(resourcePrepare(Def.task(""))),
   )
 
 // only aggregating project
@@ -85,15 +124,7 @@ inThisBuild(
   )
 )
 
-inThisBuild(
-  // In Test code: com.sandinh.couchbase.GuiceSpecBase.setup
-  // We use Guice's injectMembers that inject value for the GuiceSpecBase's private var `_cb`
-  // using reflection which is deny by default in java 16+
-  addOpensForTest() ++ Seq(
-    Test / fork := true,
-    Test / javaOptions += {
-      val host = java.net.InetAddress.getLocalHost.getHostAddress
-      s"-Dcom.sandinh.couchbase.connectionString=$host"
-    },
-  )
-)
+// In Test code: com.sandinh.couchbase.GuiceSpecBase.setup
+// We use Guice's injectMembers that inject value for the GuiceSpecBase's private var `_cb`
+// using reflection which is deny by default in java 16+
+inThisBuild(addOpensForTest())
