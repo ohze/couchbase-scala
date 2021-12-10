@@ -11,15 +11,29 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 object Implicits {
+  @deprecated(
+    "Use .recover { case _: DocumentNotFoundException => .. }",
+    "10.0.0"
+  )
   implicit class DocNotExistFuture[T](private val underlying: Future[T])
       extends AnyVal {
+    @deprecated(
+      "Use .recover { case _: DocumentNotFoundException => default } directly",
+      "10.0.0"
+    )
     def recoverNotExist[U >: T](default: => U)(
       implicit ec: ExecutionContext
     ): Future[U] =
       underlying.recover { case _: DocumentNotFoundException => default }
 
+    @deprecated(
+      "Use .transform(..) or .map(Option(_)).recover { case _: DocumentNotFoundException => None }",
+      "10.0.0"
+    )
     def optNotExist(implicit ec: ExecutionContext): Future[Option[T]] =
-      underlying.map(Option(_)).recoverNotExist(None)
+      underlying
+        .map(Option(_))
+        .recover { case _: DocumentNotFoundException => None }
   }
 
   implicit final class RichJsonObject(private val o: JsonObject)

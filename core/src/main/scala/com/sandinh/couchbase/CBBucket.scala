@@ -34,6 +34,7 @@ import com.couchbase.client.scala.query.{
   QueryParameters,
   QueryResult
 }
+import com.couchbase.client.core.error.DocumentNotFoundException
 import com.couchbase.client.scala.view.{ViewOptions, ViewResult}
 import com.couchbase.client.scala.{AsyncBucket, AsyncCluster, AsyncCollection}
 import play.api.libs.json.{JsValue, Reads}
@@ -45,7 +46,6 @@ import scala.concurrent.duration._
 import scala.concurrent.duration.Duration.MinusInf
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe.WeakTypeTag
-import Implicits.DocNotExistFuture
 
 /** @define CounterDoc      though it is common to use Couchbase to store exclusively JSON, Couchbase is actually
   *                         agnostic to what is stored.  It is possible to use a document as a 'counter' - e.g. it
@@ -596,8 +596,9 @@ final class CBBucket(val underlying: AsyncBucket, val cluster: AsyncCluster) {
   /** convenient method. {{{ = counter(id).map(_.content).recoverNotExist(default) }}} */
   def getCounter(id: String, default: Long = 0L)(
     implicit ec: ExecutionContext
-  ): Future[Long] =
-    counter(id).map(_.content).recoverNotExist(default)
+  ): Future[Long] = counter(id)
+    .map(_.content)
+    .recover { case _: DocumentNotFoundException => default }
 
   /** See doc of the other overload method */
   def counter(
