@@ -45,6 +45,7 @@ import scala.concurrent.duration._
 import scala.concurrent.duration.Duration.MinusInf
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe.WeakTypeTag
+import Implicits.DocNotExistFuture
 
 /** @define CounterDoc      though it is common to use Couchbase to store exclusively JSON, Couchbase is actually
   *                         agnostic to what is stored.  It is possible to use a document as a 'counter' - e.g. it
@@ -574,7 +575,7 @@ final class CBBucket(val underlying: AsyncBucket, val cluster: AsyncCluster) {
     */
   def counter(
     id: String,
-    delta: Long,
+    delta: Long = 0L,
     initial: Option[Long] = None,
     durability: Durability = Disabled,
     timeout: Duration = MinusInf, // MinusInf will be converted to kvReadTimeout
@@ -591,6 +592,12 @@ final class CBBucket(val underlying: AsyncBucket, val cluster: AsyncCluster) {
       expiryTime = Option(expiryTime)
     )
   )
+
+  /** convenient method. {{{ = counter(id).map(_.content).recoverNotExist(default) }}} */
+  def getCounter(id: String, default: Long = 0L)(
+    implicit ec: ExecutionContext
+  ): Future[Long] =
+    counter(id).map(_.content).recoverNotExist(default)
 
   /** See doc of the other overload method */
   def counter(
