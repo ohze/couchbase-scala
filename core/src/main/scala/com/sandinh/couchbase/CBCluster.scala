@@ -4,6 +4,7 @@ import java.lang
 import javax.inject._
 
 import com.couchbase.client.java.CouchbaseAsyncCluster
+import com.couchbase.client.java.auth.{CertAuthenticator, PasswordAuthenticator}
 import com.couchbase.client.java.document.Document
 import com.couchbase.client.java.env.CouchbaseEnvironment
 import com.couchbase.client.java.transcoder.Transcoder
@@ -12,7 +13,6 @@ import com.typesafe.config.Config
 
 import scala.jdk.CollectionConverters._
 import scala.concurrent.{Await, Future}
-import scala.util.Try
 import com.sandinh.couchbase.JavaConverters._
 import com.sandinh.rx.Implicits._
 
@@ -23,11 +23,21 @@ import scala.concurrent.duration._
 class CBCluster @Inject() (config: Config) {
   val env: CouchbaseEnvironment = CbEnvBuilder(config)
 
-  val asJava: CouchbaseAsyncCluster =
-    CouchbaseAsyncCluster.fromConnectionString(
+  val asJava: CouchbaseAsyncCluster = {
+    val cfg = config.getConfig("com.sandinh.couchbase")
+    val cluster = CouchbaseAsyncCluster.fromConnectionString(
       env,
-      config.getString("com.sandinh.couchbase.connectionString")
+      cfg.getString("connectionString")
     )
+    if (!cfg.hasPath("user")) cluster
+    else
+      cluster.authenticate(
+        new PasswordAuthenticator(
+          cfg.getString("user"),
+          cfg.getString("password")
+        )
+      )
+  }
 
   /** Open bucket with typesafe config load from key com.sandinh.couchbase.buckets.`bucket`
     * @param bucket use as a subkey of typesafe config for open bucket.
@@ -46,14 +56,23 @@ class CBCluster @Inject() (config: Config) {
     legacyEncodeString: Boolean,
     transcoders: Transcoder[_ <: Document[_], _]*
   ): Future[ScalaBucket] = {
-    val cfg = config.getConfig(s"com.sandinh.couchbase.buckets.$bucket")
-    val name = Try { cfg.getString("name") } getOrElse bucket
-    val pass = cfg.getString("password")
+    val cfg = config.getConfig("com.sandinh.couchbase")
+    val name = s"buckets.$bucket.name" match {
+      case p if cfg.hasPath(p) => cfg.getString(p)
+      case _                   => bucket
+    }
     val stringTranscoder =
       if (legacyEncodeString) CompatStringTranscoderLegacy
       else CompatStringTranscoder
     val trans = transcoders :+ JsTranscoder :+ stringTranscoder
-    asJava.openBucket(name, pass, trans.asJava).scMap(_.asScala).toFuture
+    val bucketObs = asJava.authenticator() match {
+      case _: PasswordAuthenticator | _: CertAuthenticator =>
+        asJava.openBucket(name, trans.asJava)
+      case _ =>
+        val pass = cfg.getString(s"buckets.$bucket.password")
+        asJava.openBucket(name, pass, trans.asJava)
+    }
+    bucketObs.scMap(_.asScala).toFuture
   }
 
   /** @note You should never perform long-running blocking operations inside of an asynchronous stream (e.g. inside of maps or flatMaps)
