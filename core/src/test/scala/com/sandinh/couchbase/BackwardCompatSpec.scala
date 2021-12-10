@@ -11,10 +11,10 @@ class BackwardCompatSpec extends GuiceSpecBase {
 
   private def run(args: String) =
     s"java -cp $cp com.sandinh.couchbase.Main $args".!!.trim
-  private def rndKv() =
-    ("compat" + Random.nextLong(), Random.nextLong().abs + 1)
 
   "counter" should {
+    def rndKv() =
+      ("compat" + Random.nextLong(), Random.nextLong().abs + 1)
     "backward compat: new set, old get" in {
       val (k, v) = rndKv()
       cb.bk1.counter(k, 0, v).map(_.content) must beEqualTo(v).await
@@ -24,6 +24,24 @@ class BackwardCompatSpec extends GuiceSpecBase {
       val (k, v) = rndKv()
       run(s"set counter $k $v") === v.toString
       cb.bk1.getCounter(k) must beEqualTo(v).await
+    }
+  }
+
+  "CompatString" should {
+    def rndKv() =
+      ("compat" + Random.nextLong(), "" + Random.nextLong())
+    "backward compat: new set, old get" in {
+      val (k, v) = rndKv()
+      cb.bk1.upsert(k, v).map(_.cas) must be_>(0L).await
+      run(s"get CompatString $k") === v
+    }
+    "backward compat: old set, new get" in {
+      val (k, v) = rndKv()
+      run(s"set CompatString $k $v") === v
+      cb.bk1.getT[String](k) must beEqualTo(v).await
+
+      run(s"set String $k $v") === v
+      cb.bk1.getT[String](k) must beEqualTo(v).await
     }
   }
 }
