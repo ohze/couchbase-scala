@@ -17,12 +17,12 @@ import scala.concurrent.duration._
 @Singleton
 class CBCluster @Inject() (config: Config) {
   val env: ClusterEnvironment = CbEnvBuilder(config)
-  private val conf = config.getConfig("com.sandinh.couchbase")
 
   @deprecated("Use underlying", "10.0.0")
   def asJava: AsyncCluster = underlying
 
-  lazy val underlying: AsyncCluster =
+  lazy val underlying: AsyncCluster = {
+    val conf = config.getConfig("com.sandinh.couchbase")
     AsyncCluster
       .connect(
         conf.getString("connectionString"),
@@ -35,6 +35,7 @@ class CBCluster @Inject() (config: Config) {
         ),
       )
       .get
+  }
 
   def bucket(bucketName: String): CBBucket =
     new CBBucket(underlying.bucket(bucketName), underlying)
