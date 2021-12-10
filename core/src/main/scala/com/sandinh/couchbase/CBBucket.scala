@@ -597,7 +597,7 @@ final class CBBucket(val underlying: AsyncBucket, val cluster: AsyncCluster) {
   def getCounter(id: String, default: Long = 0L)(
     implicit ec: ExecutionContext
   ): Future[Long] =
-    counter(id).map(_.content).recoverNotExist(default)
+    counter(id).map(_.content).recoverNotFound(default)
 
   /** See doc of the other overload method */
   def counter(
