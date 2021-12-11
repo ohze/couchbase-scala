@@ -37,7 +37,7 @@ lazy val `couchbase-scala` = projectMatrix
   .configAxis(config14, Seq(scala212, scala213))
   .settings(
     libraryDependencies ++= Seq(
-      "com.couchbase.client" %% "scala-client" % "1.2.3",
+      "com.couchbase.client" %% "scala-client" % "1.2.4",
       "javax.inject" % "javax.inject" % "1",
       "com.typesafe.play" %% "play-json" % "2.10.0-RC5",
       "com.typesafe" % "config" % configAxis.value.version,
