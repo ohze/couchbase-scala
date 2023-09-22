@@ -9,32 +9,26 @@ This is a library for accessing Couchbase in Scala.
 couchbase-scala is [published to maven center](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.sandinh%22%20couchbase-scala)
 
 1. using [typesafe config](https://github.com/typesafehub/config) file application.conf
-to config couchbase connection url, buckets, timeout,.. 
+to config couchbase connection url, buckets, timeout,..  
+see [reference.conf](core/src/main/resources/reference.conf)
 ```
-# see class com.couchbase.client.java.env.DefaultCouchbaseEnvironment
 com.couchbase.timeout {
   connect=10s
+  # ...
 }
 com.sandinh.couchbase {
-  connectionString = "couchbase://dev.sandinh.com"
-  buckets {
-    # syntax: bucketName.password=".."
-    # we will use CBCluster.openBucket(bucketName) to retrieve a ScalaBucket object
-    acc.password=""
-    # we can also use the following verbose syntax to customize the real bucket name when connect to couchbase server
-    bk1 {
-      name = fodi
-      password=""
-    }
-  }
+  connectionString = "dev.sandinh.com"
+  user="?"
+  password="?"
 }
 ```
 
 2. load the config, instantiate a CBCluster instance, then open a bucket
 ```scala
-val config = ConfigFactory.load()
-val cluster = new CBCluster(config);
-val accBucket = cluster.openBucket("acc");
+import com.typesafe.config.ConfigFactory
+import com.sandinh.couchbase.CBCluster
+val cluster = new CBCluster(ConfigFactory.load())
+val accBucket = cluster.bucket("acc")
 ```
 
 Or, you can use DI (example google guice):
@@ -46,23 +40,29 @@ class CBModule extends AbstractModule {
 }
 
 class MyClient @Inject() (cluster: CBCluster) {
-  val accBucket = cluster.openBucket("acc");
+  val accBucket = cluster.bucket("acc")
 }
 ```
 
-3. access couchbase using ScalaBucket's api
+3. access couchbase using CBBucket's api
 ```scala
-val s = accBucket.get[StringDocument]("some_key").map(_.content)
+val r: Future[GetResult] = accBucket.get("some_key")
 val s = accBucket.getT[String]("some_key")
-val s = accBucket.getOrElseT("some_key")("default value")
-//see other methods (insert, replace, remove, touch, counter, append, unlock, getFromReplica, getAndLock,..)
-//from ScalaBucket class
+
+//see other methods (upsert, insert, replace, remove, touch, counter, append, unlock, getFromReplica, getAndLock,..)
+//from CBBucket class
 ```
 
 4. you can use play-json to retrieve a JsValue directly
 ```scala
+import play.api.libs.json.{Json, Format}
+import com.sandinh.couchbase.Implicits.jsonSerializer // Used in upsert
+
 case class Acc(name: String, gender: Option[Boolean])
-object Acc { implicit val fmt = Json.format[Acc] }
+object Acc {
+  implicit val fmt: OFormat[Acc] = Json.format[Acc]
+}
+accBucket.upsert("some_key", Acc("name", None))
 val name = accBucket.getJsT[Acc]("some_key").map(_.name)
 ```
 

@@ -3,13 +3,13 @@ name: sbt-devops
 on: [push, pull_request]
 jobs:
   build:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     outputs:
       commitMsg: ${{ steps.commitMsg.outputs.msg }}
     strategy:
       matrix:
         java: [ '8', '11', '17' ]
-        couchbase: [ '4.6.5', '5.0.1' ]
+        couchbase: [ '7.0.2', '5.0.1' ]
     steps:
       - uses: actions/checkout@v2
       - id: commitMsg
@@ -20,22 +20,9 @@ jobs:
           distribution: 'temurin'
       - uses: coursier/cache-action@v6
       - run: sbt devopsQA
-      - run: |
-          docker run -d \
-            --ulimit nofile=40960:40960 \
-            --ulimit core=100000000:100000000 \
-            --ulimit memlock=100000000:100000000 \
-            --name cb \
-            --net=host \
-            -v `pwd`/cb-test-prepare.sh:/cb-test-prepare.sh \
-            couchbase:enterprise-${{ matrix.couchbase }}
-
-          for i in {1..5}; do
-            docker exec -e CB=${{ matrix.couchbase }} cb /cb-test-prepare.sh && break || sleep 8;
-          done
-
-        working-directory: .
-        shell: bash
+      - run: ./run-cb-test-container.sh
+        env:
+          CB_VERSION: ${{ matrix.couchbase }}
       - run: sbt test
       # https://www.scala-sbt.org/1.x/docs/GitHub-Actions-with-sbt.html#Caching
       - run: |
@@ -51,12 +38,10 @@ jobs:
     if: |
       success() &&
       github.event_name == 'push' &&
-      (github.ref == 'refs/heads/7.x' ||
-        github.ref == 'refs/heads/8.x' ||
-        github.ref == 'refs/heads/9.x' ||
-        github.ref == 'refs/heads/master' ||
+      (github.ref == 'refs/heads/master' ||
+        github.ref == 'refs/heads/10.x' ||
         startsWith(github.ref, 'refs/tags/'))
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     outputs:
       info: ${{ steps.info.outputs.info }}
     steps:

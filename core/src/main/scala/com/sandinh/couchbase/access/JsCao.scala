@@ -1,84 +1,44 @@
 package com.sandinh.couchbase.access
 
-import com.couchbase.client.java.document.json.JsonArray
-import com.couchbase.client.java.query.{N1qlParams, N1qlQuery}
-import com.sandinh.couchbase.ScalaBucket
-import com.sandinh.couchbase.document.JsDocument
-import play.api.libs.json.{Json, JsValue, Format}
-import com.sandinh.rx.Implicits._
-import com.sandinh.couchbase.Implicits._
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
+import com.sandinh.couchbase.CBBucket
+import play.api.libs.json.Format
 
-trait JsCaoTrait[T] {
-  private[access] def bucket: ScalaBucket
-  private[access] implicit def fmt: Format[T]
-
-  /** Implement [[com.sandinh.couchbase.access.CaoBase.reads]] */
-  protected def reads(u: JsValue): T = u.as[T]
-
-  /** Implement [[com.sandinh.couchbase.access.CaoBase.writes]] */
-  protected def writes(t: T): JsValue = Json.toJson(t)
-
-  /** Implement [[com.sandinh.couchbase.access.CaoBase.createDoc]] */
-  protected def createDoc(
-    id: String,
-    expiry: Int,
-    content: JsValue,
-    cas: Long = 0L
-  ): JsDocument = new JsDocument(id, content, expiry, cas)
-
-  final def query1(
-    n1ql: String,
-    qparam: N1qlParams,
-    params: AnyRef*
-  ): Future[Option[T]] = {
-    val q =
-      if (params.isEmpty) N1qlQuery.simple(n1ql, qparam)
-      else {
-        val p = JsonArray.from(params: _*)
-        N1qlQuery.parameterized(n1ql, p, qparam)
-      }
-    bucket
-      .query(q)
-      .flatMap(
-        _.rows().toFuture
-          .map { row =>
-            Json.fromJson[T](row.value().toPlayJs).asOpt
-          }
-          .recover { case _: NoSuchElementException =>
-            None
-          }
-      )
-  }
-
-  final def query1(n1ql: String, params: AnyRef*): Future[Option[T]] =
-    query1(n1ql, null, params: _*)
-}
-
-/** Base class for Couchbase Access Object to access json documents that can be decode/encode to/from the `T` type */
+/** @inheritdoc
+  * @see [[CaoKey1]], [[JsCao0]], [[JsCao1]], [[JsCao2]]
+  */
 class JsCao[T](
-  private[access] val bucket: ScalaBucket
+  val bucket: CBBucket
 )(
-  private[access] implicit val fmt: Format[T]
-) extends CaoBase[T, JsValue, JsDocument](bucket)
-    with JsCaoTrait[T]
+  protected implicit val fmt: Format[T]
+) extends CaoKeyId[T]
 
-/** Base class for Couchbase Access Object to access json documents that can be decode/encode to/from the `T` type - which is
-  * store in couchbase at key generated from the T.key(A) method
+/** @inheritdoc
+  * @see [[CaoKey1]], [[JsCao]], [[JsCao1]], [[JsCao2]]
+  */
+class JsCao0[T](
+  val bucket: CBBucket,
+  protected val key: String
+)(
+  protected implicit val fmt: Format[T]
+) extends CaoKey0[T]
+
+/** @inheritdoc
+  * @see [[CaoKey1]], [[JsCao0]], [[JsCao]], [[JsCao2]]
   */
 abstract class JsCao1[T, A](
-  private[access] val bucket: ScalaBucket
+  val bucket: CBBucket
 )(
-  private[access] implicit val fmt: Format[T]
-) extends JsCaoTrait[T]
-    with WithCaoKey1[T, A, JsValue, JsDocument] {
-  final override val self = new JsCao(bucket)
+  protected implicit val fmt: Format[T]
+) extends CaoKey1[T, A] {
+  @deprecated("May be removed in later versions", "10.0.0")
+  final lazy val self = new JsCao(bucket)
 }
 
-/** Base class for Couchbase Access Object to access json documents that can be decode/encode to/from the `T` type - which is
-  * store in couchbase at key generated from the T.key(A, B) method
+/** @inheritdoc
+  * @see [[CaoKey1]], [[JsCao0]], [[JsCao1]], [[JsCao]]
   */
-abstract class JsCao2[T: Format, A, B](bucket: ScalaBucket)
-    extends JsCao[T](bucket)
-    with WithCaoKey2[T, A, B, JsValue, JsDocument]
+abstract class JsCao2[T, A, B](
+  val bucket: CBBucket
+)(
+  protected implicit val fmt: Format[T]
+) extends CaoKey2[T, A, B]

@@ -1,9 +1,11 @@
 package com.sandinh.couchbase
 
-import javax.inject.Inject
+import com.couchbase.client.scala.kv.UpsertOptions
 
-import com.couchbase.client.java.document.JsonStringDocument
+import javax.inject.Inject
 import com.typesafe.config.Config
+import scala.concurrent.duration._
+import com.couchbase.client.scala.codec.JsonSerializer.StringConvert
 
 class JCBC_642Spec extends GuiceSpecBase {
   @Inject private[this] var cfg: Config = _
@@ -12,17 +14,23 @@ class JCBC_642Spec extends GuiceSpecBase {
     "pass JCBC-642" in {
       cfg must !==(null)
       println("load config from: " + cfg.origin().description())
-      val cfgFile = {
-        val loader = classOf[JCBC_642Spec].getClassLoader
-        loader.getResource("application.conf")
-      }
+      val cfgFile = getClass.getClassLoader.getResource("application.conf")
       cfg.origin().description() must contain(s"@ $cfgFile")
       val content = "test_value_JCBC_642"
-      val doc = JsonStringDocument.create("test_key_JCBC_642", 10000, content)
       cb.bk1
-        .upsert(doc)
-        .flatMap { d => cb.bk2.upsert(d) }
-        .map(_.content) must beEqualTo(content).await
+        .upsert(
+          "test_key_JCBC_642",
+          content,
+          UpsertOptions().expiry(10.seconds)
+        )
+        .flatMap { _ =>
+          cb.bk2.upsert(
+            "test_key_JCBC_642",
+            content,
+            UpsertOptions().expiry(10.seconds)
+          )
+        }
+        .map(_.cas) must be_>(0L).await
       cfg must !==(null)
     }
   }
