@@ -74,8 +74,8 @@ see [CHANGES.md](CHANGES.md)
 + prepare couchbase for testing
 ```shell script
 docker run -d --name cb -p 8091-8094:8091-8094 -p 11210:11210 couchbase:5.0.1
-docker cp travis-cb-prepare.sh cb:/tmp
-docker exec -i cb /tmp/travis-cb-prepare.sh
+docker cp cb-test-prepare.sh cb:/tmp
+docker exec -i cb /tmp/cb-test-prepare.sh
 ```
 or, if you have prepared before => only run `docker start cb`
 

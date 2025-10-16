@@ -1,7 +1,7 @@
 package com.sandinh.couchbase.access
 
 import com.couchbase.client.java.document.Document
-import com.couchbase.client.java.error.DocumentDoesNotExistException
+import com.couchbase.client.java.error.{CASMismatchException, DocumentDoesNotExistException}
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -38,12 +38,29 @@ private[access] trait WithCaoKey1[T, A, U, D <: Document[U]]
   final def getWithCAS(a: A): Future[(T, Long)] = self.getWithCAS(key(a))
 
   final def set(a: A, t: T): Future[D] = self.set(key(a), t)
+
   final def update(a: A, t: T, cas: Long = 0): Future[D] =
     self.update(key(a), t, cas)
 
   /** @deprecated use `update` instead */
-  final def updateWithCAS(a: A, t: T, cas: Long = 0): Future[D] =
-    self.update(key(a), t, cas)
+  final def updateWithCAS(a: A, t: T, cas: Long = 0): Future[D] = {
+    cas match {
+      case -1 => set(a, t)
+      case _ => self.update(key(a), t, cas)
+    }
+  }
+
+  final def updateWithCASNew(a: A, t: T): Future[T] = {
+    getWithCAS(a).flatMap { case (_, cas) =>
+      updateWithCAS(a, t, cas).map { _ => t }
+    }.recoverWith { case _: CASMismatchException => updateWithCASNew(a, t) }
+  }
+
+  final def getOrSetDefaultWithCAS(a: A)(default: T): Future[(T, Long)] = {
+    getWithCAS(a) recoverWith {
+      case _: DocumentDoesNotExistException => set(a, default).map(d => (default, d.cas()))
+    }
+  }
 
   final def remove(a: A): Future[D] = self.remove(key(a))
 }
